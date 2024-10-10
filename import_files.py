@@ -1,6 +1,7 @@
 from tkinter import filedialog, Tk
 import pandas as pd
 import os
+import sqlite3
 
 def choose_file():
     root = Tk()
@@ -39,3 +40,24 @@ def read_excel_file(file_path, rows=5):
 # Example of usage
 file_path = 'path/to/your/file.xlsx'
 read_excel_file(file_path)
+
+def read_sqlite(db_path, query = "SELECT * FROM nombre_tabla"):
+    try:
+        connection = sqlite3.connect(db_path)
+        df = pd.read_sql_query(query, connection)
+        print("SQLite file succesfully loaded.")
+        print(df.head())
+        return df
+    except sqlite3.DatabaseError as e:
+        print(f"Error reading SQLite database: {e}")
+    except FileNotFoundError:
+        print("Error: Database file wasn't found in the specified path.")
+    except Exception as e:
+        print(f"Error reading database: {e}")
+
+    finally: 
+        if connection:
+            connection.close()
+              
+read_sqlite(r"C:\Users\Pc\Downloads\housing.db", "SELECT * FROM california_housing_dataset")
+
