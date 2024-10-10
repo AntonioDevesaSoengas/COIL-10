@@ -13,6 +13,22 @@ def choose_file():
     )
 choose_file()
 
+def read_csv(file_path):
+    # Try reading the CSV file
+    try:
+        df = pd.read_csv(file_path)
+        print("CSV file loaded successfully.")
+        print(df.head())  # This will print the first 5 rows once
+        return df
+    except pd.errors.EmptyDataError:
+        print("Error: The CSV file is empty.")
+    except pd.errors.ParserError:
+        print("Error: The CSV file is corrupted or in an invalid format.")
+    except FileNotFoundError:
+        print("Error: The file was not found at the specified path.")
+    except Exception as e:
+        print(f"Error reading the CSV file: {e}")
+
 def read_excel_file(file_path, rows=5):
     """
     Reads an Excel file and displays the first few rows if read successfully.
