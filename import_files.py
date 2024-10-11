@@ -7,9 +7,11 @@ def choose_file():
     root = Tk()
     root.withdraw()
     file = filedialog.askopenfilename(
-    filetypes = [("csv files", "*.csv"),
-                 ("Excel files", "*.xlsx;*.xls"),
-                 ("SQlite databases", "*.sqlite;*.db")]
+        filetypes = [
+            ("CSV files", "*.csv"),
+            ("Excel files", "*.xlsx;*.xls"),
+            ("SQLite databases", "*.sqlite;*.db")
+        ]
     )
     return file
 
@@ -46,18 +48,14 @@ def read_excel_file(file_path, rows=5):
         df = pd.read_excel(file_path)
         
         # Display the first rows of the file
-        print(f"Successfully read the file {file_path}. Displaying the first {rows} rows:")
+        print(f"Excel file successfully readed. Displaying the first {rows} rows:")
         print(df.head(rows))
     
     except Exception as e:
         # In case of an error, display the error message
         print(f"Error reading the file {file_path}: {str(e)}")
 
-# Example of usage
-file_path = 'path/to/your/file.xlsx'
-read_excel_file(file_path)
-
-def read_sqlite(db_path, query = "SELECT * FROM nombre_tabla"):
+def read_sqlite(db_path, query):
     try:
         connection = sqlite3.connect(db_path)
         df = pd.read_sql_query(query, connection)
@@ -74,8 +72,6 @@ def read_sqlite(db_path, query = "SELECT * FROM nombre_tabla"):
     finally: 
         if connection:
             connection.close()
-              
-read_sqlite(r"C:\Users\Pc\Downloads\housing.db", "SELECT * FROM california_housing_dataset")
 
 
 def import_data():
@@ -85,12 +81,12 @@ def import_data():
         print("No file was selected.")
         return
 
-    if file_path.endswith(".csv"):
+    elif file_path.endswith(".csv"):
         read_csv(file_path)
     elif file_path.endswith(".xlsx") or file_path.endswith(".xls"):
         read_excel_file(file_path)
     elif file_path.endswith(".sqlite") or file_path.endswith(".db"):
-        read_sqlite(file_path, "SELECT * FROM nombre_tabla")
+        read_sqlite(file_path, "SELECT * FROM california_housing_dataset")
     else:
         print(f"Error: The file '{file_path}' is not a supported format.")
 
