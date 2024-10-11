@@ -16,11 +16,10 @@ def choose_file():
     return file
 
 def read_csv(file_path):
-    # Try reading the CSV file
     try:
         df = pd.read_csv(file_path)
         print("CSV file loaded successfully.")
-        print(df.head())  # This will print the first 5 rows once
+        print(df.head())  
         return df
     except pd.errors.EmptyDataError:
         print("Error: The CSV file is empty.")
@@ -32,27 +31,16 @@ def read_csv(file_path):
         print(f"Error reading the CSV file: {e}")
 
 def read_excel_file(file_path, rows=5):
-    """
-    Reads an Excel file and displays the first few rows if read successfully.
-    If there is an error, it displays an error message.
-
-    :param file_path: Path to the Excel file.
-    :param rows: Number of rows to display (default is 5).
-    """
     if not os.path.exists(file_path):
         print(f"Error: The file '{file_path}' does not exist.")
         return
     
     try:
-        # Try reading the Excel file
         df = pd.read_excel(file_path)
-        
-        # Display the first rows of the file
         print(f"Excel file successfully readed. Displaying the first {rows} rows:")
         print(df.head(rows))
     
     except Exception as e:
-        # In case of an error, display the error message
         print(f"Error reading the file {file_path}: {str(e)}")
 
 def read_sqlite(db_path, query):
