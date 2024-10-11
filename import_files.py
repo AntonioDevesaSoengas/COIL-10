@@ -11,7 +11,7 @@ def choose_file():
                  ("Excel files", "*.xlsx;*.xls"),
                  ("SQlite databases", "*.sqlite;*.db")]
     )
-choose_file()
+    return file
 
 def read_csv(file_path):
     # Try reading the CSV file
@@ -77,3 +77,21 @@ def read_sqlite(db_path, query = "SELECT * FROM nombre_tabla"):
               
 read_sqlite(r"C:\Users\Pc\Downloads\housing.db", "SELECT * FROM california_housing_dataset")
 
+
+def import_data():
+    file_path = choose_file()
+
+    if not file_path:
+        print("No file was selected.")
+        return
+
+    if file_path.endswith(".csv"):
+        read_csv(file_path)
+    elif file_path.endswith(".xlsx") or file_path.endswith(".xls"):
+        read_excel_file(file_path)
+    elif file_path.endswith(".sqlite") or file_path.endswith(".db"):
+        read_sqlite(file_path, "SELECT * FROM nombre_tabla")
+    else:
+        print(f"Error: The file '{file_path}' is not a supported format.")
+
+import_data()
