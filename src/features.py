@@ -1,7 +1,8 @@
 import sys
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QFileDialog, QListWidget, QComboBox, QAbstractItemView, QRadioButton, QHBoxLayout
-
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import Qt
 from import_files import import_data
 
 class DataViewer(QWidget):
@@ -14,21 +15,28 @@ class DataViewer(QWidget):
         layout = QVBoxLayout()
 
         # Botón para cargar archivo
-        self.load_button = QPushButton('Cargar Dataset', self)
+        self.load_button = QPushButton('📂 Cargar Dataset', self)
+        self.load_button.setFont(QFont('Arial', 12))
+        self.load_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px;")
         self.load_button.clicked.connect(self.open_file_dialog)
         layout.addWidget(self.load_button)
 
         # Botón para ir hacia atrás y elegir otro archivo
-        self.back_button = QPushButton('Elegir otro archivo', self)
+        self.back_button = QPushButton('🔄 Elegir otro archivo', self)
+        self.back_button.setFont(QFont('Arial', 12))
+        self.back_button.setStyleSheet("background-color: #f0ad4e; color: white; padding: 10px;")
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
+        self.back_button.setVisible(False) #No visible hasta cargar los datasets
         layout.addWidget(self.back_button)
 
         # Etiqueta para mostrar la ruta del archivo cargado
         self.file_label = QLabel('Ruta del archivo cargado:')
+        self.file_label.setFont(QFont('Arial', 11))
         layout.addWidget(self.file_label)
 
         # Tabla para mostrar los datos
         self.data_table = QTableWidget()
+        self.data_table.setFont(QFont('Arial', 10))
         self.data_table.setRowCount(0)
         self.data_table.setColumnCount(0)
         layout.addWidget(self.data_table)
@@ -60,7 +68,9 @@ class DataViewer(QWidget):
         layout.addWidget(self.target_selector)
 
         # Botón de confirmación
-        self.confirm_button = QPushButton('Confirmar selección', self)
+        self.confirm_button = QPushButton('✅ Confirmar selección', self)
+        self.confirm_button.setFont(QFont('Arial', 10))
+        self.confirm_button.setStyleSheet("background-color: lightgreen; gridline-color: #ddd;")
         self.confirm_button.setEnabled(False)  # Se activa solo cuando hay datos cargados
         self.confirm_button.clicked.connect(self.confirm_selection)
         layout.addWidget(self.confirm_button)
@@ -75,7 +85,8 @@ class DataViewer(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Selecciona un archivo", "", 
                                                    "Archivos CSV (*.csv);;Archivos Excel (*.xlsx *.xls);;Bases de datos SQLite (*.sqlite *.db)")
         if file_path:
-            self.file_label.setText(f'Archivo cargado: {file_path}')
+            self.file_label.setText(f'📂 Archivo cargado: {file_path}')
+            self.back_button.setVisible(True) 
             self.load_data(file_path)
 
     def load_data(self, file_path):
@@ -99,7 +110,12 @@ class DataViewer(QWidget):
             for j, value in enumerate(row):
                 self.data_table.setItem(i, j, QTableWidgetItem(str(value)))
         # Ajustar tamaño de columnas
+        self.data_table.resizeColumnsToContents() 
+        self.data_table.resizeRowsToContents()
+        self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def populate_selectors(self, data):
         # Habilitar los selectores y el botón de confirmación
