@@ -21,13 +21,3 @@ x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.2, random_s
 model = LinearRegression()
 model.fit(x_train,y_train)
 
-#get predictions
-predictions = model.predict(x_test)
-print(f"Predictions: {predictions}")
-
-#get the Mean Squared Error(MSE) and Determination Coefficient(r^2)
-mse = mean_squared_error(y_test, predictions)
-r2 = r2_score(y_test, predictions)
-
-print(f"Mean squared error (MSE): {mse}")
-print(f"Determination coefficient (r^2): {r2}")
