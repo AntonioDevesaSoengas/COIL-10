@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.impute import SimpleImputer
 from import_files import *
 
 #import and read data from the computer
@@ -15,8 +16,12 @@ data_encoded = pd.get_dummies(data, columns=['ocean_proximity'], drop_first=True
 x = data_encoded[['housing_median_age','total_rooms','population','median_income','longitude','latitude','total_bedrooms','households'] + [col for col in data_encoded.columns if 'ocean_proximity' in col]]
 y = data_encoded['median_house_value']
 
+#imput median in the Nan values 
+imputer = SimpleImputer(strategy='median')
+x_imputed = imputer.fit_transform(x)
+
 #divide variables into test and train
-x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=0.2, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(x_imputed,y, test_size=0.2, random_state=42)
 
 #train the model
 model = LinearRegression()
