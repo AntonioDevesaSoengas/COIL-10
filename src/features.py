@@ -12,27 +12,51 @@ class DataViewer(QWidget):
         self.df = None
 
     def initUI(self):
+
         # Layout principal
         layout = QVBoxLayout()
-
+        
         # Botón para cargar archivo
         self.load_button = QPushButton('📂 Cargar Dataset', self)
-        self.load_button.setFont(QFont('Arial', 12))
-        self.load_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px;")
+        self.load_button.setFont(QFont('Arial Black', 12))
+        self.load_button.setFixedWidth(260)
+        self.load_button.setStyleSheet("""
+            QPushButton{
+                background-color: green; color: white; padding: 10px;}
+            
+            QPushButton:hover{
+                background-color: darkgreen; color: lightgrey;}
+        """)
         self.load_button.clicked.connect(self.open_file_dialog)
         layout.addWidget(self.load_button)
 
         # Botón para ir hacia atrás y elegir otro archivo
         self.back_button = QPushButton('🔄 Elegir otro archivo', self)
-        self.back_button.setFont(QFont('Arial', 12))
-        self.back_button.setStyleSheet("background-color: #f0ad4e; color: white; padding: 10px;")
+        self.back_button.setFont(QFont('Arial Black', 12))
+        self.back_button.setFixedWidth(260)
+        self.back_button.setStyleSheet("""
+            QPushButton{
+                background-color: orange; color: white; padding: 10px;}
+
+            QPushButton:hover{
+                background-color: darkorange; color: lightgrey;}
+        """)
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
         self.back_button.setVisible(False) #No visible hasta cargar los datasets
         layout.addWidget(self.back_button)
 
+        # Tabla para mostrar los datos
+        self.data_table = QTableWidget()
+        self.data_table.setMinimumHeight(200)
+        self.data_table.setMaximumHeight(300)
+        self.data_table.setFont(QFont('Arial', 10))
+        self.data_table.setRowCount(0)
+        self.data_table.setColumnCount(0)
+        layout.addWidget(self.data_table)
+
         # Etiqueta para mostrar la ruta del archivo cargado
-        self.file_label = QLabel('Ruta del archivo cargado:')
-        self.file_label.setFont(QFont('Arial', 11))
+        self.file_label = QLabel('📂 Ruta del archivo cargado:')
+        self.file_label.setFont(QFont('Arial', 10))
         layout.addWidget(self.file_label)
 
         # Etiqueta y botón para detección de valores inexistentes
@@ -55,13 +79,6 @@ class DataViewer(QWidget):
         self.preprocessing_options.currentIndexChanged.connect(self.apply_preprocessing_option)
         layout.addWidget(self.preprocessing_options)
 
-        # Tabla para mostrar los datos
-        self.data_table = QTableWidget()
-        self.data_table.setFont(QFont('Arial', 10))
-        self.data_table.setRowCount(0)
-        self.data_table.setColumnCount(0)
-        layout.addWidget(self.data_table)
-
         # Radio buttons para seleccionar el tipo de regresión
         self.radio_simple = QRadioButton("Regresión Simple")
         self.radio_multiple = QRadioButton("Regresión Múltiple")
@@ -77,6 +94,8 @@ class DataViewer(QWidget):
         # Selector de columnas (features)
         self.feature_selector = QListWidget(self)
         self.feature_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Por defecto, solo una selección (regresión simple)
+        self.feature_selector.setMinimumHeight(80)
+        self.feature_selector.setMaximumHeight(150)
         self.feature_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
         layout.addWidget(QLabel("Columnas de Entrada (Features)"))
         layout.addWidget(self.feature_selector)
@@ -84,14 +103,21 @@ class DataViewer(QWidget):
         # Selector simple para la columna de salida (target)
         self.target_selector = QListWidget(self)
         self.target_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Solo una selección para target
+        self.target_selector.setMinimumHeight(80)
+        self.target_selector.setMaximumHeight(150)
         self.target_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
         layout.addWidget(QLabel("Columna de Salida (Target)"))
         layout.addWidget(self.target_selector)
 
         # Botón de confirmación
         self.confirm_button = QPushButton('✅ Confirmar selección', self)
-        self.confirm_button.setFont(QFont('Arial', 10))
-        self.confirm_button.setStyleSheet("background-color: lightgreen; gridline-color: #ddd;")
+        self.confirm_button.setFont(QFont('Arial Black', 10))
+        self.confirm_button.setStyleSheet("""
+            QPushButton{
+                background-color: lightgreen; color: darkgrey; gridline-color: #ddd;}
+            QPushButton:hover{
+                background-color: green; color: white;}
+        """)
         self.confirm_button.setEnabled(False)  # Se activa solo cuando hay datos cargados
         self.confirm_button.clicked.connect(self.confirm_selection)
         layout.addWidget(self.confirm_button)
@@ -135,13 +161,24 @@ class DataViewer(QWidget):
         for i, row in data.iterrows():
             for j, value in enumerate(row):
                 self.data_table.setItem(i, j, QTableWidgetItem(str(value)))
-        # Ajustar tamaño de columnas
-        self.data_table.resizeColumnsToContents() 
+        # Ajustar tamaño de tabla
+        self.data_table.resizeColumnsToContents()
         self.data_table.resizeRowsToContents()
-        self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        # Deshabilitar boton Cargar Datasets
+        self.load_button.setVisible(False)
+
+    def resizeEvent(self, event):
+        window_width = self.width()
+        
+        if window_width < 1000:
+            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+            self.data_table.resizeColumnsToContents()
+        else:
+            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        super().resizeEvent(event)
 
     def populate_selectors(self, data):
         # Habilitar los selectores y el botón de confirmación
