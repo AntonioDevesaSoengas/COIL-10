@@ -1,6 +1,6 @@
 import sys
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QFileDialog, QListWidget, QComboBox, QAbstractItemView, QRadioButton, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QComboBox, QInputDialog, QFileDialog, QListWidget, QAbstractItemView, QRadioButton, QHBoxLayout
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from import_files import import_data
@@ -33,6 +33,26 @@ class DataViewer(QWidget):
         self.file_label = QLabel('Ruta del archivo cargado:')
         self.file_label.setFont(QFont('Arial', 11))
         layout.addWidget(self.file_label)
+
+        # Etiqueta y botón para detección de valores inexistentes
+        layout.addWidget(QLabel("Detección de Valores Inexistentes"))
+        self.detect_button = QPushButton('🔍 Detectar', self)
+        self.detect_button.clicked.connect(self.detect_missing_values)
+        self.detect_button.setEnabled(False)
+        layout.addWidget(self.detect_button)
+
+        # Menú desplegable para opciones de preprocesado
+        layout.addWidget(QLabel("Opciones de Manejo de Datos Inexistentes"))
+        self.preprocessing_options = QComboBox(self)
+        self.preprocessing_options.addItems([
+            "🗑️ Eliminar Filas con Valores Inexistentes",
+            "📊 Rellenar con la Media",
+            "📊 Rellenar con la Mediana",
+            "✏️ Rellenar con un Valor Constante"
+        ])
+        self.preprocessing_options.setEnabled(False)
+        self.preprocessing_options.currentIndexChanged.connect(self.apply_preprocessing_option)
+        layout.addWidget(self.preprocessing_options)
 
         # Tabla para mostrar los datos
         self.data_table = QTableWidget()
@@ -167,6 +187,60 @@ class DataViewer(QWidget):
         self.target_selector.setEnabled(False)
         self.confirm_button.setEnabled(False)
         self.open_file_dialog()
+
+    # Funcion de Preprocesado para detectar Valores Inexistentes
+    def detect_missing_values(self):
+        if self.df is not None:
+            missing_data = self.df.isnull().sum()
+            message = "--- Detección de Valores Inexistentes ---\n"
+            message += f"Valores inexistentes por columna:\n{missing_data[missing_data > 0]}"
+            QMessageBox.information(self, "Detección de Valores Inexistentes", message)
+
+    # Aplicar la opción de preprocesado seleccionada en el ComboBox
+    def apply_preprocessing_option(self):
+        if self.df is None:
+            return
+        
+        option = self.preprocessing_options.currentText()
+        if option == "🗑️ Eliminar Filas con Valores Inexistentes":
+            self.remove_missing_values()
+        elif option == "📊 Rellenar con la Media":
+            self.fill_with_mean()
+        elif option == "📊 Rellenar con la Mediana":
+            self.fill_with_median()
+        elif option == "✏️ Rellenar con un Valor Constante":
+            self.fill_with_constant()
+
+    def remove_missing_values(self):
+        if self.df is not None:
+            self.df = self.df.dropna()
+            self.display_data_in_table(self.df)
+            QMessageBox.information(self, "Éxito", "Filas con valores inexistentes eliminadas.")
+
+    def fill_with_mean(self):
+        if self.df is not None:
+            from sklearn.impute import SimpleImputer
+            imputer = SimpleImputer(strategy='mean')
+            self.df[:] = imputer.fit_transform(self.df)
+            self.display_data_in_table(self.df)
+            QMessageBox.information(self, "Éxito", "Valores inexistentes rellenados con la media.")
+
+    def fill_with_median(self):
+        if self.df is not None:
+            from sklearn.impute import SimpleImputer
+            imputer = SimpleImputer(strategy='median')
+            self.df[:] = imputer.fit_transform(self.df)
+            self.display_data_in_table(self.df)
+            QMessageBox.information(self, "Éxito", "Valores inexistentes rellenados con la mediana.")
+
+    def fill_with_constant(self):
+        value, ok = QInputDialog.getDouble(self, "Rellenar con un Valor Constante", "Introduce el valor numérico para rellenar:")
+        if ok and self.df is not None:
+            from sklearn.impute import SimpleImputer
+            imputer = SimpleImputer(strategy='constant', fill_value=value)
+            self.df[:] = imputer.fit_transform(self.df)
+            self.display_data_in_table(self.df)
+            QMessageBox.information(self, "Éxito", "Valores inexistentes rellenados con el valor constante.")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
