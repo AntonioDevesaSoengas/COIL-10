@@ -3,65 +3,80 @@ import statsmodels.api as sm
 import pandas as pd
 from import_files import *
 
-# Carga los datos del modelo 
+# Load the model data
 data = import_data(r"C:\Users\Alejandro\Downloads\housing.csv")
 
-# Visualiza las primeras filas de Data para verificar que los datos se hayan cargado correctamente
+# Display the first few rows of the DataFrame to verify that the data has been loaded correctly
 print(data.head())
 
 '''
-Convertir la columna 'ocean_proximity' en variables dummy mediante one-hot encoding.
-Para evitar multicolinealidad, se elimina la primera categoría utilizando drop_first=True.
+Convert the 'ocean_proximity' column into dummy variables using one-hot encoding.
+To avoid multicollinearity, set drop_first=True to remove the first category and set it as the reference.
 '''
 data_encoded = pd.get_dummies(data, columns=['ocean_proximity'], drop_first=True)
 
-# Verificar tipos de datos antes de cualquier conversión adicional
-print("\nTipos de datos antes de la conversión:")
+# Verify data types before any additional conversion
+print("\nData types before conversion:")
 print(data_encoded.dtypes)
 
-# Identificar y convertir columnas booleanas a float si existen
+# Identify and convert boolean columns to float if they exist
 bool_cols = [col for col in data_encoded.columns if data_encoded[col].dtype == 'bool']
 if bool_cols:
-    print("\nColumnas booleanas identificadas:")
+    print("\nIdentified boolean columns:")
     print(bool_cols)
     data_encoded[bool_cols] = data_encoded[bool_cols].astype('float64')
 else:
-    print("\nNo se identificaron columnas booleanas.")
+    print("\nNo boolean columns identified.")
 
-# Verificar tipos de datos después de la conversión
-print("\nTipos de datos después de la conversión:")
+# Verify data types after conversion
+print("\nData types after conversion:")
 print(data_encoded.dtypes)
 
-# Verificar valores nulos en las columnas
-print("\nConteo de valores nulos por columna:")
+# Check for null values in the columns
+print("\nCount of null values per column:")
 print(data_encoded.isnull().sum())
 
-# Rellenar los valores nulos con la media de cada columna
+# Fill null values with the mean of each column
 data_encoded.fillna(data_encoded.mean(), inplace=True)
 
-# Verificar nuevamente valores nulos después del manejo
-print("\nConteo de valores nulos después de manejar los NaN:")
+# Check again for null values after handling
+print("\nCount of null values after handling NaNs:")
 print(data_encoded.isnull().sum())
 
-# Seleccionamos las variables independientes (X) y la variable dependiente (y)
+# Select independent variables (X) and the dependent variable (y)
 x = data_encoded[['housing_median_age', 'total_rooms', 'population', 'median_income', 'longitude', 'latitude', 'total_bedrooms', 'households'] + 
                  [col for col in data_encoded.columns if 'ocean_proximity' in col]]
 y = data_encoded['median_house_value']
 
-# Añadimos el intercepto valor que toma la variable dependiente, cuando todas las independientes son cero
+# Add the intercept, which is the value the dependent variable takes when all independents are zero
 x = sm.add_constant(x)
 
-# Verificar que no haya valores nulos en X e y
-print("\nVerificación de NaN en X:")
+# Verify that there are no null values in X and y
+print("\nVerification of NaNs in X:")
 print(x.isnull().sum())
-print("\nVerificación de NaN en y:")
+print("\nVerification of NaNs in y:")
 print(y.isnull().sum())
 
-# Crear el modelo de regresión
+# Create the regression model
 model = sm.OLS(y, x)
 
-# Ajustar el modelo
+# Fit the model
 result = model.fit()
 
-print("\nResumen del modelo de regresión OLS:")
+# Generate predictions using the fitted model
+predictions = result.predict(x)
+
+# Show the first 5 predictions
+print("\nModel Predictions (first 5):")
+print(predictions.head())
+
+# Show the summary
+print("\nSummary of the OLS regression model:")
 print(result.summary())
+
+# Calculate MSE and R²
+mse = result.mse_resid  # Residual Mean Squared Error
+r_squared = result.rsquared  # R-squared
+
+print(f"\nMean Squared Error (MSE): {mse}")
+print(f"R-squared (R²): {r_squared}")
