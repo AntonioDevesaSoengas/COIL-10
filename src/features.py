@@ -9,6 +9,7 @@ class DataViewer(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.df = None
 
     def initUI(self):
         # Layout principal
@@ -111,13 +112,18 @@ class DataViewer(QWidget):
 
     def load_data(self, file_path):
         try:
-            # Llamamos a import_data y obtenemos el DataFrame
             data = import_data(file_path)
-
-            if data is not None:
+            if data is not None and not data.empty:
+                self.df = data
                 self.display_data_in_table(data)
-                self.populate_selectors(data)
-
+                # Habilitar botones si se cargan los datos correctamente
+                self.detect_button.setEnabled(True)
+                self.preprocessing_options.setEnabled(True)
+                self.back_button.setVisible(True)
+                self.file_label.setText(f'📂 Archivo cargado: {file_path}')
+                self.populate_selectors(data) # Asegurar que se llenen los selectores de features/target
+            else:
+                QMessageBox.warning(self, "Advertencia", "El archivo está vacío o no se pudo cargar correctamente.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo cargar el archivo: {str(e)}")
 
@@ -192,9 +198,16 @@ class DataViewer(QWidget):
     def detect_missing_values(self):
         if self.df is not None:
             missing_data = self.df.isnull().sum()
-            message = "--- Detección de Valores Inexistentes ---\n"
-            message += f"Valores inexistentes por columna:\n{missing_data[missing_data > 0]}"
+            if missing_data.sum() == 0:
+                # Si no hay valores faltantes, mostrar un mensaje indicando que todo está completo
+                message = "No hay valores inexistentes. El dataset está completo."
+            else:
+                # Si hay valores faltantes, mostrar el desglose por columna
+                message = "--- Detección de Valores Inexistentes ---\n"
+                message += f"Valores inexistentes por columna:\n{missing_data[missing_data > 0]}"
+            
             QMessageBox.information(self, "Detección de Valores Inexistentes", message)
+    
 
     # Aplicar la opción de preprocesado seleccionada en el ComboBox
     def apply_preprocessing_option(self):
