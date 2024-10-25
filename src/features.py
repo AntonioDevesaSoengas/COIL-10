@@ -4,12 +4,14 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLa
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from import_files import import_data
+from data_preprocessing import detect_missing_values, remove_missing_values, fill_with_mean, fill_with_median, fill_with_constant
 
 class DataViewer(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
         self.df = None
+        self.last_file_path = None
 
     def initUI(self):
 
@@ -59,10 +61,9 @@ class DataViewer(QWidget):
         self.file_label.setFont(QFont('Arial', 10))
         layout.addWidget(self.file_label)
 
-        # Etiqueta y botón para detección de valores inexistentes
-        layout.addWidget(QLabel("Detección de Valores Inexistentes"))
+        # Botón para detección de valores inexistentes
         self.detect_button = QPushButton('🔍 Detectar', self)
-        self.detect_button.clicked.connect(self.detect_missing_values)
+        self.detect_button.clicked.connect(self.handle_detect_missing_values)
         self.detect_button.setEnabled(False)
         layout.addWidget(self.detect_button)
 
@@ -76,8 +77,14 @@ class DataViewer(QWidget):
             "✏️ Rellenar con un Valor Constante"
         ])
         self.preprocessing_options.setEnabled(False)
-        self.preprocessing_options.currentIndexChanged.connect(self.apply_preprocessing_option)
         layout.addWidget(self.preprocessing_options)
+
+        # Botón de confirmación para aplicar el preprocesado
+        self.apply_button = QPushButton('🟢 Aplicar Preprocesado', self)
+        self.apply_button.setFont(QFont('Arial Black', 8))
+        self.apply_button.setEnabled(False)
+        self.apply_button.clicked.connect(self.confirm_preprocessing)
+        layout.addWidget(self.apply_button) 
 
         # Radio buttons para seleccionar el tipo de regresión
         self.radio_simple = QRadioButton("Regresión Simple")
@@ -132,9 +139,22 @@ class DataViewer(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Selecciona un archivo", "", 
                                                    "Archivos CSV (*.csv);;Archivos Excel (*.xlsx *.xls);;Bases de datos SQLite (*.sqlite *.db)")
         if file_path:
-            self.file_label.setText(f'📂 Archivo cargado: {file_path}')
-            self.back_button.setVisible(True) 
-            self.load_data(file_path)
+            if self.last_file_path == file_path:
+                # Mostrar mensaje y opciones de confirmación si es el mismo archivo
+                result = QMessageBox.question(self, "Advertencia", 
+                    "Estás seleccionando el mismo archivo que ya has cargado. ¿Deseas cargarlo de nuevo?",
+                    QMessageBox.Yes | QMessageBox.No)
+                if result == QMessageBox.No:
+                    return
+                      # Mantener el dataset actual sin cambios
+                elif result == QMessageBox.Yes:
+                    self.load_data(file_path)  # Recargar el dataset directamente sin abrir el explorador
+        
+            else:
+                self.last_file_path = file_path    
+                self.file_label.setText(f'📂 Archivo cargado: {file_path}')
+                self.back_button.setVisible(True) 
+                self.load_data(file_path)
 
     def load_data(self, file_path):
         try:
@@ -147,9 +167,14 @@ class DataViewer(QWidget):
                 self.preprocessing_options.setEnabled(True)
                 self.back_button.setVisible(True)
                 self.file_label.setText(f'📂 Archivo cargado: {file_path}')
-                self.populate_selectors(data) # Asegurar que se llenen los selectores de features/target
+                self.populate_selectors(data) 
+                self.apply_button.setEnabled(True)
             else:
                 QMessageBox.warning(self, "Advertencia", "El archivo está vacío o no se pudo cargar correctamente.")
+        except pd.errors.EmptyDataError:
+            QMessageBox.critical(self, "Error", "El archivo CSV está vacío. Por favor, selecciona otro archivo.")
+        except pd.errors.ParserError:
+            QMessageBox.critical(self, "Error", "El archivo CSV está corrupto o tiene un formato inválido.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo cargar el archivo: {str(e)}")
 
@@ -232,66 +257,32 @@ class DataViewer(QWidget):
         self.open_file_dialog()
 
     # Funcion de Preprocesado para detectar Valores Inexistentes
-    def detect_missing_values(self):
+    def handle_detect_missing_values(self):
         if self.df is not None:
-            missing_data = self.df.isnull().sum()
-            if missing_data.sum() == 0:
-                # Si no hay valores faltantes, mostrar un mensaje indicando que todo está completo
-                message = "No hay valores inexistentes. El dataset está completo."
-            else:
-                # Si hay valores faltantes, mostrar el desglose por columna
-                message = "--- Detección de Valores Inexistentes ---\n"
-                message += f"Valores inexistentes por columna:\n{missing_data[missing_data > 0]}"
-            
+            message = detect_missing_values(self.df)
             QMessageBox.information(self, "Detección de Valores Inexistentes", message)
     
 
     # Aplicar la opción de preprocesado seleccionada en el ComboBox
-    def apply_preprocessing_option(self):
-        if self.df is None:
+    def confirm_preprocessing(self):  # NUEVO: Confirmar y aplicar preprocesado
+        option = self.preprocessing_options.currentText()
+        if not option:
+            QMessageBox.warning(self, "Advertencia", "Debes seleccionar una opción de preprocesado antes de confirmar.")
             return
         
-        option = self.preprocessing_options.currentText()
-        if option == "🗑️ Eliminar Filas con Valores Inexistentes":
-            self.remove_missing_values()
-        elif option == "📊 Rellenar con la Media":
-            self.fill_with_mean()
-        elif option == "📊 Rellenar con la Mediana":
-            self.fill_with_median()
-        elif option == "✏️ Rellenar con un Valor Constante":
-            self.fill_with_constant()
-
-    def remove_missing_values(self):
-        if self.df is not None:
-            self.df = self.df.dropna()
-            self.display_data_in_table(self.df)
-            QMessageBox.information(self, "Éxito", "Filas con valores inexistentes eliminadas.")
-
-    def fill_with_mean(self):
-        if self.df is not None:
-            from sklearn.impute import SimpleImputer
-            imputer = SimpleImputer(strategy='mean')
-            self.df[:] = imputer.fit_transform(self.df)
-            self.display_data_in_table(self.df)
-            QMessageBox.information(self, "Éxito", "Valores inexistentes rellenados con la media.")
-
-    def fill_with_median(self):
-        if self.df is not None:
-            from sklearn.impute import SimpleImputer
-            imputer = SimpleImputer(strategy='median')
-            self.df[:] = imputer.fit_transform(self.df)
-            self.display_data_in_table(self.df)
-            QMessageBox.information(self, "Éxito", "Valores inexistentes rellenados con la mediana.")
-
-    def fill_with_constant(self):
-        value, ok = QInputDialog.getDouble(self, "Rellenar con un Valor Constante", "Introduce el valor numérico para rellenar:")
-        if ok and self.df is not None:
-            from sklearn.impute import SimpleImputer
-            imputer = SimpleImputer(strategy='constant', fill_value=value)
-            self.df[:] = imputer.fit_transform(self.df)
-            self.display_data_in_table(self.df)
-            QMessageBox.information(self, "Éxito", "Valores inexistentes rellenados con el valor constante.")
-
+        try:
+            if option == "🗑️ Eliminar Filas con Valores Inexistentes":
+                remove_missing_values(self)
+            elif option == "📊 Rellenar con la Media":
+                fill_with_mean(self)
+            elif option == "📊 Rellenar con la Mediana":
+                fill_with_median(self)
+            elif option == "✏️ Rellenar con un Valor Constante":
+                fill_with_constant(self)
+            QMessageBox.information(self, "Éxito", "Preprocesado aplicado con éxito.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
+    
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     viewer = DataViewer()
