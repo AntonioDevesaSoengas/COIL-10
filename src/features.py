@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QComboBox, QInputDialog, QFileDialog, QListWidget, QAbstractItemView, QRadioButton, QHBoxLayout
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from import_files import import_data
 from data_preprocessing import detect_missing_values, remove_missing_values, fill_with_mean, fill_with_median, fill_with_constant
@@ -14,10 +14,9 @@ class DataViewer(QWidget):
         self.last_file_path = None
 
     def initUI(self):
-
         # Layout principal
         layout = QVBoxLayout()
-        
+
         # Botón para cargar archivo
         self.load_button = QPushButton('📂 Cargar Dataset', self)
         self.load_button.setFont(QFont('Arial Black', 12))
@@ -25,7 +24,6 @@ class DataViewer(QWidget):
         self.load_button.setStyleSheet("""
             QPushButton{
                 background-color: green; color: white; padding: 10px;}
-            
             QPushButton:hover{
                 background-color: darkgreen; color: lightgrey;}
         """)
@@ -39,18 +37,15 @@ class DataViewer(QWidget):
         self.back_button.setStyleSheet("""
             QPushButton{
                 background-color: orange; color: white; padding: 10px;}
-
             QPushButton:hover{
                 background-color: darkorange; color: lightgrey;}
         """)
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
-        self.back_button.setVisible(False) #No visible hasta cargar los datasets
+        self.back_button.setVisible(False)  # No visible hasta cargar los datasets
         layout.addWidget(self.back_button)
 
         # Tabla para mostrar los datos
         self.data_table = QTableWidget()
-        self.data_table.setMinimumHeight(200)
-        self.data_table.setMaximumHeight(300)
         self.data_table.setFont(QFont('Arial', 10))
         self.data_table.setRowCount(0)
         self.data_table.setColumnCount(0)
@@ -84,7 +79,7 @@ class DataViewer(QWidget):
         self.apply_button.setFont(QFont('Arial Black', 8))
         self.apply_button.setEnabled(False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
-        layout.addWidget(self.apply_button) 
+        layout.addWidget(self.apply_button)
 
         # Radio buttons para seleccionar el tipo de regresión
         self.radio_simple = QRadioButton("Regresión Simple")
@@ -101,19 +96,15 @@ class DataViewer(QWidget):
         # Selector de columnas (features)
         self.feature_selector = QListWidget(self)
         self.feature_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Por defecto, solo una selección (regresión simple)
-        self.feature_selector.setMinimumHeight(80)
-        self.feature_selector.setMaximumHeight(150)
         self.feature_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
         layout.addWidget(QLabel("Columnas de Entrada (Features)"))
         layout.addWidget(self.feature_selector)
 
         # Selector simple para la columna de salida (target)
         self.target_selector = QListWidget(self)
-        self.target_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Solo una selección para target
-        self.target_selector.setMinimumHeight(80)
-        self.target_selector.setMaximumHeight(150)
+        self.target_selector.setSelectionMode(QAbstractItemView.MultiSelection)  # Permitir selección múltiple para la salida
         self.target_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
-        layout.addWidget(QLabel("Columna de Salida (Target)"))
+        layout.addWidget(QLabel("Columnas de Salida (Target)"))
         layout.addWidget(self.target_selector)
 
         # Botón de confirmación
@@ -121,7 +112,7 @@ class DataViewer(QWidget):
         self.confirm_button.setFont(QFont('Arial Black', 10))
         self.confirm_button.setStyleSheet("""
             QPushButton{
-                background-color: lightgreen; color: darkgrey; gridline-color: #ddd;}
+                background-color: lightgreen; color: darkgrey;}
             QPushButton:hover{
                 background-color: green; color: white;}
         """)
@@ -146,7 +137,6 @@ class DataViewer(QWidget):
                     QMessageBox.Yes | QMessageBox.No)
                 if result == QMessageBox.No:
                     return
-                      # Mantener el dataset actual sin cambios
                 elif result == QMessageBox.Yes:
                     self.load_data(file_path)  # Recargar el dataset directamente sin abrir el explorador
         
@@ -186,23 +176,23 @@ class DataViewer(QWidget):
         for i, row in data.iterrows():
             for j, value in enumerate(row):
                 self.data_table.setItem(i, j, QTableWidgetItem(str(value)))
+
         # Ajustar tamaño de tabla
         self.data_table.resizeColumnsToContents()
         self.data_table.resizeRowsToContents()
         self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        # Asegurarse de que la tabla ocupa todo el ancho del marco
+        for j in range(len(data.columns)):
+            self.data_table.setColumnWidth(j, self.data_table.width() // len(data.columns))  # Ajustar el ancho de cada columna
+
         # Deshabilitar boton Cargar Datasets
         self.load_button.setVisible(False)
 
     def resizeEvent(self, event):
-        window_width = self.width()
-        
-        if window_width < 1000:
-            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-            self.data_table.resizeColumnsToContents()
-        else:
-            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
+        # Ajustar el tamaño de la tabla al redimensionar la ventana
+        self.data_table.setFixedWidth(self.width() - 40)  # Ajustar con un margen
         super().resizeEvent(event)
 
     def populate_selectors(self, data):
@@ -256,12 +246,11 @@ class DataViewer(QWidget):
         self.confirm_button.setEnabled(False)
         self.open_file_dialog()
 
-    # Funcion de Preprocesado para detectar Valores Inexistentes
+    # Función de Preprocesado para detectar Valores Inexistentes
     def handle_detect_missing_values(self):
         if self.df is not None:
             message = detect_missing_values(self.df)
             QMessageBox.information(self, "Detección de Valores Inexistentes", message)
-    
 
     # Aplicar la opción de preprocesado seleccionada en el ComboBox
     def confirm_preprocessing(self):  # NUEVO: Confirmar y aplicar preprocesado
@@ -279,8 +268,10 @@ class DataViewer(QWidget):
                 fill_with_median(self)
             elif option == "✏️ Rellenar con un Valor Constante":
                 fill_with_constant(self)
+
+            # Volver a mostrar la tabla después del preprocesado
+            self.display_data_in_table(self.df)  # Asegúrate de que se actualice la tabla con el nuevo contenido
+
             QMessageBox.information(self, "Éxito", "Preprocesado aplicado con éxito.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
-    
-
