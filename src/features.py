@@ -12,6 +12,8 @@ class DataViewer(QWidget):
         self.initUI()
         self.df = None
         self.last_file_path = None
+        self.columnas_entrada = []
+        self.columna_salida = []
 
     def initUI(self):
         # Layout principal
@@ -236,8 +238,10 @@ class DataViewer(QWidget):
     def confirm_selection(self):
         # Obtener las selecciones de features
         selected_features = [item.text() for item in self.feature_selector.selectedItems()]
+        self.columnas_entrada = selected_features
         # Obtener la selección de target
         selected_target = [item.text() for item in self.target_selector.selectedItems()]
+        self.columna_salida = selected_target
 
         if not selected_features or not selected_target:
             QMessageBox.warning(self, "Selección incompleta", "Debes seleccionar al menos una columna de entrada y una de salida.")
