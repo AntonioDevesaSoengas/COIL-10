@@ -120,6 +120,19 @@ class DataViewer(QWidget):
         self.confirm_button.clicked.connect(self.confirm_selection)
         layout.addWidget(self.confirm_button)
 
+    
+        # *** Nuevo Botón para Crear el Modelo de Regresión ***
+        self.create_model_button = QPushButton('📈 Crear Modelo de Regresión', self)
+        self.create_model_button.setFont(QFont('Arial Black', 10))
+        self.create_model_button.setStyleSheet("""
+            QPushButton{
+                background-color: blue; color: white; padding: 10px;}
+            QPushButton:hover{
+                background-color: darkblue; color: lightgrey;}
+        """)
+        self.create_model_button.setEnabled(False)  # Se habilita solo cuando la selección está confirmada
+        layout.addWidget(self.create_model_button)
+
         # Configurar layout
         self.setLayout(layout)
         self.setWindowTitle('Visualizador de Datasets')
