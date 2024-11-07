@@ -180,12 +180,13 @@ class DataViewer(QWidget):
         # Ajustar tamaño de tabla
         self.data_table.resizeColumnsToContents()
         self.data_table.resizeRowsToContents()
-        self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
-        # Asegurarse de que la tabla ocupa todo el ancho del marco
+        # Asegúrate de que la tabla ocupe todo el ancho del marco
         for j in range(len(data.columns)):
             self.data_table.setColumnWidth(j, self.data_table.width() // len(data.columns))  # Ajustar el ancho de cada columna
+
+        self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
         # Deshabilitar boton Cargar Datasets
         self.load_button.setVisible(False)
@@ -193,6 +194,18 @@ class DataViewer(QWidget):
     def resizeEvent(self, event):
         # Ajustar el tamaño de la tabla al redimensionar la ventana
         self.data_table.setFixedWidth(self.width() - 40)  # Ajustar con un margen
+        super().resizeEvent(event)
+
+
+    def resizeEvent(self, event):
+        window_width = self.width()
+        
+        if window_width < 1000:
+            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+            self.data_table.resizeColumnsToContents()
+        else:
+            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
         super().resizeEvent(event)
 
     def populate_selectors(self, data):
@@ -275,3 +288,4 @@ class DataViewer(QWidget):
             QMessageBox.information(self, "Éxito", "Preprocesado aplicado con éxito.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
+
