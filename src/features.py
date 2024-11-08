@@ -298,10 +298,9 @@ class DataViewer(QWidget):
         from results_window import ResultWindow
         try:
             self.result_window = ResultWindow(self.df, self.columnas_entrada, self.columna_salida)
-            self.result_window.show()
-        
             # Success Message
             QMessageBox.information(self, "Éxito", "El modelo de regresión se ha creado correctamente.")
+            self.result_window.show()
         
         except Exception as e:
             # Error Message
