@@ -17,9 +17,12 @@ class DataViewer(QWidget):
 
     def initUI(self):
         # Principal layout        
-        layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
+        # Front/Back layout
+        self.NBlayout = QHBoxLayout()
 
         # Welcome Message
+        #-----------------------------------------------------------------------------------------------------------------------
         self.hello = QLabel("¡Hello!")
         self.hello.setAlignment(Qt.AlignCenter)
         self.hello.setStyleSheet("font-weight: bold;")
@@ -50,11 +53,13 @@ regression based on them""")
         self.welcome_layout.addItem(self.spacer)
         self.welcome_layout.addWidget(self.start_label)
         self.welcome_layout.addLayout(self.button_layout)
-        layout.addLayout(self.welcome_layout)
-
+        self.main_layout.addLayout(self.welcome_layout)
+        #-----------------------------------------------------------------------------------------------------------------------
+        # FIRST STEP: Open file and display data
+        #-----------------------------------------------------------------------------------------------------------------------
+        self.first_step_layout = QVBoxLayout()
         # Botón para cargar archivo
         self.load_button = QPushButton('📂 Cargar Dataset', self)
-        self.load_button.setFont(QFont('Arial Black', 12))
         self.load_button.setFixedWidth(260)
         self.load_button.setStyleSheet("""
             QPushButton{
@@ -64,7 +69,7 @@ regression based on them""")
         """)
         self.load_button.clicked.connect(self.open_file_dialog)
         self.load_button.setVisible(False)
-        layout.addWidget(self.load_button)
+        self.first_step_layout.addWidget(self.load_button)
 
         # Button to go back and choose another file
         self.back_button = QPushButton('🔄 Elegir otro archivo', self)
@@ -78,13 +83,13 @@ regression based on them""")
         """)
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
         self.back_button.setVisible(False)  # No visible hasta cargar los datasets
-        layout.addWidget(self.back_button)
+        self.first_step_layout.addWidget(self.back_button)
 
         # Label to display the path of the uploaded file
         self.file_label = QLabel('📂 Ruta del archivo cargado:')
         self.file_label.setFont(QFont('Arial', 10))
         self.file_label.setVisible(False)
-        layout.addWidget(self.file_label)
+        self.first_step_layout.addWidget(self.file_label)
 
         # Table to display data
         self.data_table = QTableWidget()
@@ -92,13 +97,18 @@ regression based on them""")
         self.data_table.setRowCount(0)
         self.data_table.setColumnCount(0)
         self.data_table.setVisible(False)
-        layout.addWidget(self.data_table)
-
+        self.first_step_layout.addWidget(self.data_table)
+        self.main_layout.addLayout(self.first_step_layout)
+        #-----------------------------------------------------------------------------------------------------------------------
+        # SECOND STEP: Nan values
+        #-----------------------------------------------------------------------------------------------------------------------
+        # Nan Layout
+        self.nan_layout = QVBoxLayout()
         # Button for detecting non-existent values
         self.detect_button = QPushButton('🔍 Detectar', self)
         self.detect_button.clicked.connect(self.handle_detect_missing_values)
         self.detect_button.setVisible(False)
-        layout.addWidget(self.detect_button)
+        self.nan_layout.addWidget(self.detect_button)
 
         # Drop-down menu for pre-processing options
         self.preprocessing_options = QComboBox(self)
@@ -109,15 +119,20 @@ regression based on them""")
             "✏️ Rellenar con un Valor Constante"
         ])
         self.preprocessing_options.setVisible(False)
-        layout.addWidget(self.preprocessing_options)
+        self.nan_layout.addWidget(self.preprocessing_options)
 
         # Confirmation button to apply pre-processing
         self.apply_button = QPushButton('🟢 Aplicar Preprocesado', self)
         self.apply_button.setFont(QFont('Arial Black', 8))
         self.apply_button.setVisible(False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
-        layout.addWidget(self.apply_button)
-
+        self.nan_layout.addWidget(self.apply_button)
+        self.main_layout.addLayout(self.nan_layout)
+        #-----------------------------------------------------------------------------------------------------------------------
+        # THIRD STEP: Options for the linear regresion
+        #-----------------------------------------------------------------------------------------------------------------------
+        # Regresion Layout
+        self.regresion_layout = QVBoxLayout()
         # Radio buttons to select the type of regression
         self.radio_simple = QRadioButton("Regresión Simple")
         self.radio_multiple = QRadioButton("Regresión Múltiple")
@@ -128,10 +143,10 @@ regression based on them""")
         self.radio_simple.setVisible(False)
         self.radio_multiple.setVisible(False)
 
-        radio_layout = QHBoxLayout()
-        radio_layout.addWidget(self.radio_simple)
-        radio_layout.addWidget(self.radio_multiple)
-        layout.addLayout(radio_layout)
+        self.radio_layout = QHBoxLayout()
+        self.radio_layout.addWidget(self.radio_simple)
+        self.radio_layout.addWidget(self.radio_multiple)
+        self.regresion_layout.addLayout(self.radio_layout)
 
         # Column selector (features)
         self.feature_label = QLabel("Columnas de Entrada (Features)")
@@ -139,8 +154,8 @@ regression based on them""")
         self.feature_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Por defecto, solo una selección (regresión simple)
         self.feature_selector.setVisible(False)  
         self.feature_label.setVisible(False)
-        layout.addWidget(self.feature_label)
-        layout.addWidget(self.feature_selector)
+        self.regresion_layout.addWidget(self.feature_label)
+        self.regresion_layout.addWidget(self.feature_selector)
 
         # Simple selector for the output column (target)
         self.target_label = QLabel("Columnas de Salida (Target)")
@@ -148,8 +163,8 @@ regression based on them""")
         self.target_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Permitir selección unica para la salida
         self.target_selector.setVisible(False) 
         self.target_label.setVisible(False)
-        layout.addWidget(self.target_label)
-        layout.addWidget(self.target_selector)
+        self.regresion_layout.addWidget(self.target_label)
+        self.regresion_layout.addWidget(self.target_selector)
 
         # Confirmation button
         self.confirm_button = QPushButton('✅ Confirmar selección', self)
@@ -162,9 +177,8 @@ regression based on them""")
         """)
         self.confirm_button.setVisible(False)  
         self.confirm_button.clicked.connect(self.confirm_selection)
-        layout.addWidget(self.confirm_button)
+        self.regresion_layout.addWidget(self.confirm_button)
 
-    
         # Create Regression Model Button
         self.create_model_button = QPushButton('📈 Crear Modelo de Regresión', self)
         self.create_model_button.setFont(QFont('Arial Black', 10))
@@ -176,10 +190,36 @@ regression based on them""")
         """)
         self.create_model_button.setVisible(False)  
         self.create_model_button.clicked.connect(self.show_results)
-        layout.addWidget(self.create_model_button)
+        self.regresion_layout.addWidget(self.create_model_button)
+        self.main_layout.addLayout(self.regresion_layout)
+        #-----------------------------------------------------------------------------------------------------------------------
+        # Next and Back Buttons:
+        #-----------------------------------------------------------------------------------------------------------------------
+        #Return Button
+        self.back_layout = QVBoxLayout()
+        self.return_button = QPushButton("<- Back")
+        self.return_button.setVisible(False)
+        self.back_layout.addWidget(self.return_button)
+        self.back_layout.setAlignment(Qt.AlignLeft)                
+        self.NBlayout.addLayout(self.back_layout)
 
+
+        # Next Button
+        self.next_layout = QVBoxLayout()
+        self.next_button = QPushButton("Next ->")
+        self.next_button.clicked.connect(self.second_step)
+        self.next_button.setVisible(False)
+        self.next_button.setEnabled(False)
+        self.next_layout.addWidget(self.next_button)
+        self.next_layout.setAlignment(Qt.AlignRight)
+        self.NBlayout.addLayout(self.next_layout)
+        #-----------------------------------------------------------------------------------------------------------------------
+        # Layouts
+        #-----------------------------------------------------------------------------------------------------------------------
         # Configurar layout
-        self.setLayout(layout)
+        self.NBlayout.setAlignment(Qt.AlignBottom)
+        self.main_layout.addLayout(self.NBlayout)
+        self.setLayout(self.main_layout)
         self.setWindowTitle('Visualizador de Datasets')
 
     def open_file_dialog(self):
@@ -231,6 +271,9 @@ regression based on them""")
 
         # Show file path
         self.file_label.setVisible(True)
+        self.next_button.setEnabled(True)
+        self.load_button.setVisible(False)
+        self.back_button.setVisible(True)
 
         # Adjust Table Size
         # Ajustar tamaño de tabla
@@ -252,6 +295,10 @@ regression based on them""")
             self.start_label.setFont(QFont("Arial",12))
             self.start_button.setFont(QFont("Arial Black",12))
             self.start_button.setMaximumWidth(350)
+            self.load_button.setFont(QFont('Arial Black', 12))
+            self.load_button.setMaximumWidth(100)
+            self.back_button.setFont(QFont('Arial Black', 12))
+            self.back_button.setMaximumWidth(100)
             self.setMinimumSize(800,600)
 
         else:
@@ -262,6 +309,10 @@ regression based on them""")
             self.start_label.setFont(QFont("Arial",14))
             self.start_button.setFont(QFont("Arial Black",18))
             self.start_button.setMaximumWidth(450)
+            self.load_button.setFont(QFont('Arial Black', 16))
+            self.load_button.setMaximumWidth(325)
+            self.back_button.setFont(QFont('Arial Black', 16))
+            self.back_button.setMaximumWidth(350)
             self.setMinimumSize(800, 600)
 
         super().resizeEvent(event)
@@ -351,17 +402,31 @@ regression based on them""")
     #---------------------------------------------------------------------------------------------------------------------------
     # Program Execution
 
-    def make_layout_invisible(self,layout):
+    def layout_visibility(self,visibility:bool,layout):
         for i in reversed(range(layout.count())):
             item = layout.itemAt(i)
-            if item.widget():
-                item.widget().setVisible(False)  
-            if isinstance(item, QSpacerItem):
-                layout.removeItem(item) 
-            if item.layout():
-                self.make_layout_invisible(item.layout())
+            if visibility == False:
+                if item.widget():
+                    item.widget().setVisible(False)  
+                if isinstance(item, QSpacerItem):
+                    layout.removeItem(item) 
+                if item.layout():
+                    self.layout_visibility(False, item.layout())
+            else:
+                if item.widget():
+                    item.widget().setVisible(True)  
+                if item.layout():
+                    self.layout_visibility(True, item.layout())
 
     def first_step(self):
-        self.make_layout_invisible(self.welcome_layout)
-        self.load_button.setVisible(True)
-        self.data_table.setVisible(True)
+        self.layout_visibility(False,self.welcome_layout)
+        self.layout_visibility(True, self.first_step_layout)
+        self.back_button.setVisible(False)
+        self.file_label.setVisible(False)
+        self.next_button.setVisible(True)
+
+
+    def second_step(self):
+        self.layout_visibility(False, self.first_step_layout)
+        self.layout_visibility(True, self.nan_layout)
+        self.return_button.setVisible(True)
