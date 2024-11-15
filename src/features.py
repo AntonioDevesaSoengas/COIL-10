@@ -14,6 +14,7 @@ class DataViewer(QWidget):
         self.last_file_path = None
         self.columnas_entrada = []
         self.columna_salida = []
+        self.move = 1
 
     def initUI(self):
         # Principal layout        
@@ -43,7 +44,7 @@ regression based on them""")
         self.start_label.setAlignment(Qt.AlignCenter)
         self.start_button = QPushButton("Start My Linear Regresion")
         self.start_button.setStyleSheet("color:green; padding:10px")
-        self.start_button.clicked.connect(self.first_step)
+        self.start_button.clicked.connect(self.delete_welcome)
 
         self.button_layout = QHBoxLayout()
         self.button_layout.addWidget(self.start_button)
@@ -198,6 +199,7 @@ regression based on them""")
         #Return Button
         self.back_layout = QVBoxLayout()
         self.return_button = QPushButton("<- Back")
+        self.return_button.clicked.connect(self.back)
         self.return_button.setVisible(False)
         self.back_layout.addWidget(self.return_button)
         self.back_layout.setAlignment(Qt.AlignLeft)                
@@ -207,7 +209,7 @@ regression based on them""")
         # Next Button
         self.next_layout = QVBoxLayout()
         self.next_button = QPushButton("Next ->")
-        self.next_button.clicked.connect(self.second_step)
+        self.next_button.clicked.connect(self.next)
         self.next_button.setVisible(False)
         self.next_button.setEnabled(False)
         self.next_layout.addWidget(self.next_button)
@@ -271,9 +273,9 @@ regression based on them""")
 
         # Show file path
         self.file_label.setVisible(True)
-        self.next_button.setEnabled(True)
         self.load_button.setVisible(False)
         self.back_button.setVisible(True)
+        self.next_button.setEnabled(True)
 
         # Adjust Table Size
         # Ajustar tamaño de tabla
@@ -402,7 +404,7 @@ regression based on them""")
     #---------------------------------------------------------------------------------------------------------------------------
     # Program Execution
 
-    def layout_visibility(self,visibility:bool,layout):
+    def layout_visibility(self,sublayouts:bool,visibility:bool,layout):
         for i in reversed(range(layout.count())):
             item = layout.itemAt(i)
             if visibility == False:
@@ -410,23 +412,46 @@ regression based on them""")
                     item.widget().setVisible(False)  
                 if isinstance(item, QSpacerItem):
                     layout.removeItem(item) 
-                if item.layout():
-                    self.layout_visibility(False, item.layout())
+                if item.layout() and sublayouts == True:
+                    self.layout_visibility(True,False, item.layout())
             else:
                 if item.widget():
                     item.widget().setVisible(True)  
-                if item.layout():
-                    self.layout_visibility(True, item.layout())
+                if item.layout() and sublayouts == True:
+                    self.layout_visibility(True,True, item.layout())
 
-    def first_step(self):
-        self.layout_visibility(False,self.welcome_layout)
-        self.layout_visibility(True, self.first_step_layout)
-        self.back_button.setVisible(False)
-        self.file_label.setVisible(False)
-        self.next_button.setVisible(True)
+    def delete_welcome(self):
+        self.layout_visibility(True,False,self.welcome_layout)
+        self.drive_through()
 
-
-    def second_step(self):
-        self.layout_visibility(False, self.first_step_layout)
-        self.layout_visibility(True, self.nan_layout)
-        self.return_button.setVisible(True)
+    def next(self):
+        if self.move < 3:
+            self.move += 1
+            self.drive_through()
+                        
+    def back(self):
+        if self.move > 1:
+            self.move -= 1
+            self.drive_through()
+            
+    def drive_through(self):
+        self.layout_visibility(True,False,self.main_layout)
+        self.layout_visibility(True,True,self.NBlayout)
+        if self.move == 1:
+            self.layout_visibility(True,True, self.first_step_layout)
+            self.back_button.setVisible(False)
+            self.file_label.setVisible(False)
+            self.return_button.setEnabled(False)
+            if self.data_table.columnCount() == 0:
+                self.next_button.setEnabled(False)
+            else:
+                self.next_button.setEnabled(True)
+            
+        elif self.move == 2:
+            self.layout_visibility(True,True, self.nan_layout)
+            self.data_table.setVisible(True)
+            self.return_button.setEnabled(True)
+            self.next_button.setEnabled(True)
+        else:
+            self.layout_visibility(True,True, self.regresion_layout)
+            self.next_button.setEnabled(False)
