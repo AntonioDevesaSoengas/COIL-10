@@ -16,8 +16,41 @@ class DataViewer(QWidget):
         self.columna_salida = []
 
     def initUI(self):
-        # Principal layout
+        # Principal layout        
         layout = QVBoxLayout()
+
+        # Welcome Message
+        self.hello = QLabel("¡Hello!")
+        self.hello.setAlignment(Qt.AlignCenter)
+        self.hello.setStyleSheet("font-weight: bold;")
+        self.welcome_message = QLabel("""Welcome to "our app", here you will be able to 
+upload your own datasets and create a linear 
+regression based on them""")
+        self.welcome_message.setAlignment(Qt.AlignCenter)
+        
+        self.spacer = QSpacerItem(0,0)
+        self.welcome_layout = QVBoxLayout()
+        self.welcome_layout.addWidget(self.hello)
+        self.welcome_layout.addItem(self.spacer)
+        self.welcome_layout.addWidget(self.welcome_message)
+        self.welcome_layout.setAlignment(Qt.AlignCenter)
+
+        # Start Button
+        self.start_label = QLabel("Click here to start\n👇")
+        self.start_label.setAlignment(Qt.AlignCenter)
+        self.start_button = QPushButton("Start My Linear Regresion")
+        self.start_button.setStyleSheet("color:green; padding:10px")
+        self.start_button.clicked.connect(self.first_step)
+
+        self.button_layout = QHBoxLayout()
+        self.button_layout.addWidget(self.start_button)
+        self.button_layout.setAlignment(Qt.AlignCenter)
+
+        self.welcome_layout.addItem(self.spacer)
+        self.welcome_layout.addItem(self.spacer)
+        self.welcome_layout.addWidget(self.start_label)
+        self.welcome_layout.addLayout(self.button_layout)
+        layout.addLayout(self.welcome_layout)
 
         # Botón para cargar archivo
         self.load_button = QPushButton('📂 Cargar Dataset', self)
@@ -30,6 +63,7 @@ class DataViewer(QWidget):
                 background-color: darkgreen; color: lightgrey;}
         """)
         self.load_button.clicked.connect(self.open_file_dialog)
+        self.load_button.setVisible(False)
         layout.addWidget(self.load_button)
 
         # Button to go back and choose another file
@@ -46,26 +80,27 @@ class DataViewer(QWidget):
         self.back_button.setVisible(False)  # No visible hasta cargar los datasets
         layout.addWidget(self.back_button)
 
+        # Label to display the path of the uploaded file
+        self.file_label = QLabel('📂 Ruta del archivo cargado:')
+        self.file_label.setFont(QFont('Arial', 10))
+        self.file_label.setVisible(False)
+        layout.addWidget(self.file_label)
+
         # Table to display data
         self.data_table = QTableWidget()
         self.data_table.setFont(QFont('Arial', 10))
         self.data_table.setRowCount(0)
         self.data_table.setColumnCount(0)
+        self.data_table.setVisible(False)
         layout.addWidget(self.data_table)
-
-        # Label to display the path of the uploaded file
-        self.file_label = QLabel('📂 Ruta del archivo cargado:')
-        self.file_label.setFont(QFont('Arial', 10))
-        layout.addWidget(self.file_label)
 
         # Button for detecting non-existent values
         self.detect_button = QPushButton('🔍 Detectar', self)
         self.detect_button.clicked.connect(self.handle_detect_missing_values)
-        self.detect_button.setEnabled(False)
+        self.detect_button.setVisible(False)
         layout.addWidget(self.detect_button)
 
         # Drop-down menu for pre-processing options
-        layout.addWidget(QLabel("Opciones de Manejo de Datos Inexistentes"))
         self.preprocessing_options = QComboBox(self)
         self.preprocessing_options.addItems([
             "🗑️ Eliminar Filas con Valores Inexistentes",
@@ -73,13 +108,13 @@ class DataViewer(QWidget):
             "📊 Rellenar con la Mediana",
             "✏️ Rellenar con un Valor Constante"
         ])
-        self.preprocessing_options.setEnabled(False)
+        self.preprocessing_options.setVisible(False)
         layout.addWidget(self.preprocessing_options)
 
         # Confirmation button to apply pre-processing
         self.apply_button = QPushButton('🟢 Aplicar Preprocesado', self)
         self.apply_button.setFont(QFont('Arial Black', 8))
-        self.apply_button.setEnabled(False)
+        self.apply_button.setVisible(False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
         layout.addWidget(self.apply_button)
 
@@ -90,23 +125,30 @@ class DataViewer(QWidget):
         self.radio_simple.toggled.connect(self.update_feature_selector)
         self.radio_multiple.toggled.connect(self.update_feature_selector)
 
+        self.radio_simple.setVisible(False)
+        self.radio_multiple.setVisible(False)
+
         radio_layout = QHBoxLayout()
         radio_layout.addWidget(self.radio_simple)
         radio_layout.addWidget(self.radio_multiple)
         layout.addLayout(radio_layout)
 
         # Column selector (features)
+        self.feature_label = QLabel("Columnas de Entrada (Features)")
         self.feature_selector = QListWidget(self)
         self.feature_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Por defecto, solo una selección (regresión simple)
-        self.feature_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
-        layout.addWidget(QLabel("Columnas de Entrada (Features)"))
+        self.feature_selector.setVisible(False)  
+        self.feature_label.setVisible(False)
+        layout.addWidget(self.feature_label)
         layout.addWidget(self.feature_selector)
 
         # Simple selector for the output column (target)
+        self.target_label = QLabel("Columnas de Salida (Target)")
         self.target_selector = QListWidget(self)
         self.target_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Permitir selección unica para la salida
-        self.target_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
-        layout.addWidget(QLabel("Columnas de Salida (Target)"))
+        self.target_selector.setVisible(False) 
+        self.target_label.setVisible(False)
+        layout.addWidget(self.target_label)
         layout.addWidget(self.target_selector)
 
         # Confirmation button
@@ -118,7 +160,7 @@ class DataViewer(QWidget):
             QPushButton:hover{
                 background-color: green; color: white;}
         """)
-        self.confirm_button.setEnabled(False)  # Se activa solo cuando hay datos cargados
+        self.confirm_button.setVisible(False)  
         self.confirm_button.clicked.connect(self.confirm_selection)
         layout.addWidget(self.confirm_button)
 
@@ -132,14 +174,13 @@ class DataViewer(QWidget):
             QPushButton:hover{
                 background-color: darkblue; color: lightgrey;}
         """)
-        self.create_model_button.setEnabled(False)  # Enabled only when the selection is confirmed
+        self.create_model_button.setVisible(False)  
         self.create_model_button.clicked.connect(self.show_results)
         layout.addWidget(self.create_model_button)
 
         # Configurar layout
         self.setLayout(layout)
         self.setWindowTitle('Visualizador de Datasets')
-        self.resize(800, 600)  # Tamaño de la ventana ajustado
 
     def open_file_dialog(self):
         # Open File Explorer with PyQt5's QFileDialog
@@ -159,7 +200,6 @@ class DataViewer(QWidget):
             else:
                 self.last_file_path = file_path    
                 self.file_label.setText(f'📂 Archivo cargado: {file_path}')
-                self.back_button.setVisible(True) 
                 self.load_data(file_path)
 
     def load_data(self, file_path):
@@ -169,12 +209,8 @@ class DataViewer(QWidget):
                 self.df = data
                 self.display_data_in_table(data)
                 # Enable buttons if data is loaded correctly
-                self.detect_button.setEnabled(True)
-                self.preprocessing_options.setEnabled(True)
-                self.back_button.setVisible(True)
                 self.file_label.setText(f'📂 Archivo cargado: {file_path}')
                 self.populate_selectors(data) 
-                self.apply_button.setEnabled(True)
             else:
                 QMessageBox.warning(self, "Advertencia", "El archivo está vacío o no se pudo cargar correctamente.")
         except pd.errors.EmptyDataError:
@@ -193,28 +229,44 @@ class DataViewer(QWidget):
             for j, value in enumerate(row):
                 self.data_table.setItem(i, j, QTableWidgetItem(str(value)))
 
+        # Show file path
+        self.file_label.setVisible(True)
+
         # Adjust Table Size
+        # Ajustar tamaño de tabla
         self.data_table.resizeColumnsToContents()
         self.data_table.resizeRowsToContents()
-
-        # Make sure the board takes up the entire width of the frame
-        for j in range(len(data.columns)):
-            self.data_table.setColumnWidth(j, self.data_table.width() // len(data.columns))  # Ajustar el ancho de cada columna
-
-        # Disable Load Datasets button
-        self.load_button.setVisible(False)
+        self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def resizeEvent(self, event):
         # Adjust the size of the table when resizing the window
-        self.data_table.setFixedWidth(self.width() - 40)  # Adjust with a margin
+        window_width = self.width()
+        
+        if window_width < 1000:
+            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+            self.data_table.resizeColumnsToContents()
+            self.spacer.changeSize(0,20)
+            self.hello.setFont(QFont("Arial", 25))  
+            self.welcome_message.setFont(QFont("Arial", 18))
+            self.start_label.setFont(QFont("Arial",12))
+            self.start_button.setFont(QFont("Arial Black",12))
+            self.start_button.setMaximumWidth(350)
+            self.setMinimumSize(800,600)
+
+        else:
+            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.spacer.changeSize(0,40)
+            self.hello.setFont(QFont("Arial",45))
+            self.welcome_message.setFont(QFont("Arial",35))
+            self.start_label.setFont(QFont("Arial",14))
+            self.start_button.setFont(QFont("Arial Black",18))
+            self.start_button.setMaximumWidth(450)
+            self.setMinimumSize(800, 600)
+
         super().resizeEvent(event)
 
     def populate_selectors(self, data):
-        # Enable the Selectors and Confirmation Button
-        self.feature_selector.setEnabled(True)
-        self.target_selector.setEnabled(True)
-        self.confirm_button.setEnabled(True)
-
         # Clean up your current selectors
         self.feature_selector.clear()
         self.target_selector.clear()
@@ -247,20 +299,12 @@ class DataViewer(QWidget):
 
         # Succes message of the selected columns
         QMessageBox.information(self, "Selección confirmada", f"Has seleccionado las columnas de entrada: {', '.join(selected_features)} y la columna de salida: {', '.join(selected_target)}.")
-        self.create_model_button.setEnabled(True)
 
     def clear_table_and_choose_file(self):
         # Clean up the table and select a new file
-        self.data_table.clear()
-        self.data_table.setRowCount(0)
-        self.data_table.setColumnCount(0)
-        self.feature_selector.clear()
-        self.target_selector.clear()
-        self.file_label.setText('Ruta del archivo cargado:')
-        self.feature_selector.setEnabled(False)
-        self.target_selector.setEnabled(False)
-        self.confirm_button.setEnabled(False)
-        self.open_file_dialog()
+        file_path = self.open_file_dialog()
+        if file_path and file_path != self.last_file_path:
+            self.data_table.clear()
 
     # Preprocessing function to detect Non-existent Values
     def handle_detect_missing_values(self):
@@ -303,3 +347,21 @@ class DataViewer(QWidget):
         except Exception as e:
             # Error Message
             QMessageBox.critical(self, "Error", f"Ocurrió un error al crear el modelo: {str(e)}")
+
+    #---------------------------------------------------------------------------------------------------------------------------
+    # Program Execution
+
+    def make_layout_invisible(self,layout):
+        for i in reversed(range(layout.count())):
+            item = layout.itemAt(i)
+            if item.widget():
+                item.widget().setVisible(False)  
+            if isinstance(item, Qself.spacerItem):
+                layout.removeItem(item) 
+            if item.layout():
+                self.make_layout_invisible(item.layout())
+
+    def first_step(self):
+        self.make_layout_invisible(self.welcome_layout)
+        self.load_button.setVisible(True)
+        self.data_table.setVisible(True)
