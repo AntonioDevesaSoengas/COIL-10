@@ -1,5 +1,6 @@
 import joblib
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget
+from PyQt5.QtWidgets import QLabel, QTextEdit
 
 class ModelLoader(QWidget):
     def __init__(self, viewer):
@@ -25,12 +26,26 @@ class ModelLoader(QWidget):
             QMessageBox.critical(self.viewer, "Error", f"No se pudo cargar el modelo: {str(e)}")
     
     def update_ui_with_model(self, model_data):
-        # Actualizar la interfaz con los datos del modelo
         self.viewer.formula_label.setText(f"Fórmula: {model_data['formula']}")
-        self.viewer.mse_label.setText(f"MSE: {model_data['mse']}")
-        self.viewer.r_squared_label.setText(f"R²: {model_data['r_squared']}")
-        self.viewer.description_text.setText(model_data['description'])
+        self.viewer.mse_label.setText(f"MSE: {model_data.get('mse', 'No disponible')}")
+        self.viewer.r_squared_label.setText(f"R²: {model_data.get('r_squared', 'No disponible')}")
         
-        # Ocultar secciones no necesarias para el modelo
-        self.viewer.hide_data_loading_sections()
+        # Hacer visibles los detalles del modelo
+        self.show_model_details()
 
+    def show_model_details(self):
+        # Mostrar etiquetas para el modelo cargado
+        self.viewer.formula_label.setVisible(True)
+        self.viewer.mse_label.setVisible(False)
+        self.viewer.r_squared_label.setVisible(False)
+        self.viewer.description_text.setVisible(True)
+
+    def hide_data_loading_sections(self):
+        # Ocultar las secciones de la interfaz que no se necesitan al cargar un modelo
+        self.viewer.load_button.setVisible(False)
+        self.viewer.detect_button.setVisible(False)
+        self.viewer.preprocessing_options.setVisible(False)
+        self.viewer.apply_button.setVisible(False)
+        self.viewer.feature_selector.setVisible(False)
+        self.viewer.target_selector.setVisible(False)
+        self.viewer.confirm_button.setVisible(False)
