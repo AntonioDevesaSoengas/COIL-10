@@ -5,20 +5,24 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from import_files import import_data
 from data_preprocessing import detect_missing_values, remove_missing_values, fill_with_mean, fill_with_median, fill_with_constant
+from model_saver import ModelSaver
 
 class DataViewer(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
         self.df = None
         self.last_file_path = None
         self.columnas_entrada = []
         self.columna_salida = []
 
-    def initUI(self):
-        # Principal layout
-        layout = QVBoxLayout()
+        # Crear el layout principal y asignarlo al widget
+        self.layout = QVBoxLayout()  
+        self.setLayout(self.layout)
 
+        # Configuración de la interfaz de usuario
+        self.initUI()  # Llamamos a initUI una vez, donde se agregan los widgets al layout
+
+    def initUI(self):
         # Botón para cargar archivo
         self.load_button = QPushButton('📂 Cargar Dataset', self)
         self.load_button.setFont(QFont('Arial Black', 12))
@@ -30,7 +34,7 @@ class DataViewer(QWidget):
                 background-color: darkgreen; color: lightgrey;}
         """)
         self.load_button.clicked.connect(self.open_file_dialog)
-        layout.addWidget(self.load_button)
+        self.layout.addWidget(self.load_button)
 
         # Button to go back and choose another file
         self.back_button = QPushButton('🔄 Elegir otro archivo', self)
@@ -44,28 +48,28 @@ class DataViewer(QWidget):
         """)
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
         self.back_button.setVisible(False)  # No visible hasta cargar los datasets
-        layout.addWidget(self.back_button)
+        self.layout.addWidget(self.back_button)
 
         # Table to display data
         self.data_table = QTableWidget()
         self.data_table.setFont(QFont('Arial', 10))
         self.data_table.setRowCount(0)
         self.data_table.setColumnCount(0)
-        layout.addWidget(self.data_table)
+        self.layout.addWidget(self.data_table)
 
         # Label to display the path of the uploaded file
         self.file_label = QLabel('📂 Ruta del archivo cargado:')
         self.file_label.setFont(QFont('Arial', 10))
-        layout.addWidget(self.file_label)
+        self.layout.addWidget(self.file_label)
 
         # Button for detecting non-existent values
         self.detect_button = QPushButton('🔍 Detectar', self)
         self.detect_button.clicked.connect(self.handle_detect_missing_values)
         self.detect_button.setEnabled(False)
-        layout.addWidget(self.detect_button)
+        self.layout.addWidget(self.detect_button)
 
         # Drop-down menu for pre-processing options
-        layout.addWidget(QLabel("Opciones de Manejo de Datos Inexistentes"))
+        self.layout.addWidget(QLabel("Opciones de Manejo de Datos Inexistentes"))
         self.preprocessing_options = QComboBox(self)
         self.preprocessing_options.addItems([
             "🗑️ Eliminar Filas con Valores Inexistentes",
@@ -74,14 +78,14 @@ class DataViewer(QWidget):
             "✏️ Rellenar con un Valor Constante"
         ])
         self.preprocessing_options.setEnabled(False)
-        layout.addWidget(self.preprocessing_options)
+        self.layout.addWidget(self.preprocessing_options)
 
         # Confirmation button to apply pre-processing
         self.apply_button = QPushButton('🟢 Aplicar Preprocesado', self)
         self.apply_button.setFont(QFont('Arial Black', 8))
         self.apply_button.setEnabled(False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
-        layout.addWidget(self.apply_button)
+        self.layout.addWidget(self.apply_button)
 
         # Radio buttons to select the type of regression
         self.radio_simple = QRadioButton("Regresión Simple")
@@ -93,21 +97,21 @@ class DataViewer(QWidget):
         radio_layout = QHBoxLayout()
         radio_layout.addWidget(self.radio_simple)
         radio_layout.addWidget(self.radio_multiple)
-        layout.addLayout(radio_layout)
+        self.layout.addLayout(radio_layout)
 
         # Column selector (features)
         self.feature_selector = QListWidget(self)
         self.feature_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Por defecto, solo una selección (regresión simple)
         self.feature_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
-        layout.addWidget(QLabel("Columnas de Entrada (Features)"))
-        layout.addWidget(self.feature_selector)
+        self.layout.addWidget(QLabel("Columnas de Entrada (Features)"))
+        self.layout.addWidget(self.feature_selector)
 
         # Simple selector for the output column (target)
         self.target_selector = QListWidget(self)
         self.target_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Permitir selección unica para la salida
         self.target_selector.setEnabled(False)  # Inicia desactivado hasta que cargues datos
-        layout.addWidget(QLabel("Columnas de Salida (Target)"))
-        layout.addWidget(self.target_selector)
+        self.layout.addWidget(QLabel("Columnas de Salida (Target)"))
+        self.layout.addWidget(self.target_selector)
 
         # Confirmation button
         self.confirm_button = QPushButton('✅ Confirmar selección', self)
@@ -120,7 +124,7 @@ class DataViewer(QWidget):
         """)
         self.confirm_button.setEnabled(False)  # Se activa solo cuando hay datos cargados
         self.confirm_button.clicked.connect(self.confirm_selection)
-        layout.addWidget(self.confirm_button)
+        self.layout.addWidget(self.confirm_button)
 
     
         # Create Regression Model Button
@@ -134,10 +138,10 @@ class DataViewer(QWidget):
         """)
         self.create_model_button.setEnabled(False)  # Enabled only when the selection is confirmed
         self.create_model_button.clicked.connect(self.show_results)
-        layout.addWidget(self.create_model_button)
+        self.layout.addWidget(self.create_model_button)
 
         # Configurar layout
-        self.setLayout(layout)
+        self.setLayout(self.layout)
         self.setWindowTitle('Visualizador de Datasets')
         self.resize(800, 600)  # Tamaño de la ventana ajustado
 
@@ -292,6 +296,51 @@ class DataViewer(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
 
+    
+    
+        # Botón para guardar el modelo
+        self.save_model_button = QPushButton("💾 Guardar Modelo", self)
+        self.save_model_button.setFont(QFont("Arial Black", 10))
+        self.save_model_button.setStyleSheet("""
+            QPushButton {
+                background-color: lightblue; color: black; padding: 10px;}
+            QPushButton:hover {
+                background-color: darkblue; color: white;}
+        """)
+        self.save_model_button.setEnabled(False)
+        self.save_model_button.clicked.connect(self.open_model_saver)
+        self.layout.addWidget(self.save_model_button)
+
+        # Configuración de ventana
+        self.setWindowTitle('Visualizador de Datasets')
+        self.resize(800, 600)
+
+
+
+    def open_model_saver(self):
+        try:
+            # Verifica si tienes los datos del modelo listos
+            model_data = {
+                'model': self.result_window.model,  # Asegúrate de que aquí pasas el modelo real
+                'formula': self.result_window.formula_label.text(),
+                'r_squared': getattr(self.result_window, 'r_squared', None),
+                'mse': getattr(self.result_window, 'mse', None),
+                'input_columns': self.columnas_entrada,
+                'output_column': self.columna_salida,
+                'description': self.result_window.text_box.toPlainText()
+            }
+
+            # Llamar directamente a ModelSaver para guardar el modelo
+            model_saver = ModelSaver(**model_data)
+            model_saver.save_model_dialog()  # Esto abrirá el diálogo para seleccionar el archivo y guardar directamente
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Ocurrió un error al guardar el modelo: {str(e)}")
+
+
+
+
+
     def show_results(self):
         from results_window import ResultWindow
         try:
@@ -299,6 +348,8 @@ class DataViewer(QWidget):
             # Success Message
             QMessageBox.information(self, "Éxito", "El modelo de regresión se ha creado correctamente.")
             self.result_window.show()
+
+            self.save_model_button.setEnabled(True)
         
         except Exception as e:
             # Error Message
