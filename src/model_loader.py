@@ -29,6 +29,7 @@ class ModelLoader(QWidget):
         self.viewer.formula_label.setText(f"Fórmula: {model_data['formula']}")
         self.viewer.mse_label.setText(f"MSE: {model_data.get('mse', 'No disponible')}")
         self.viewer.r_squared_label.setText(f"R²: {model_data.get('r_squared', 'No disponible')}")
+        self.viewer.description_text.setText(model_data.get('description', ''))
         
         # Hacer visibles los detalles del modelo
         self.show_model_details()
