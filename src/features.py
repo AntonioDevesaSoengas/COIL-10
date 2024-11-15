@@ -356,7 +356,7 @@ regression based on them""")
             item = layout.itemAt(i)
             if item.widget():
                 item.widget().setVisible(False)  
-            if isinstance(item, Qself.spacerItem):
+            if isinstance(item, QSpacerItem):
                 layout.removeItem(item) 
             if item.layout():
                 self.make_layout_invisible(item.layout())
