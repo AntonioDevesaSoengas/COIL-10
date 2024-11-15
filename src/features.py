@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from import_files import import_data
 from data_preprocessing import detect_missing_values, remove_missing_values, fill_with_mean, fill_with_median, fill_with_constant
 from model_saver import ModelSaver
+from model_loader import ModelLoader
 
 class DataViewer(QWidget):
     def __init__(self):
@@ -18,6 +19,7 @@ class DataViewer(QWidget):
         # Crear el layout principal y asignarlo al widget
         self.layout = QVBoxLayout()  
         self.setLayout(self.layout)
+
 
         # Configuración de la interfaz de usuario
         self.initUI()  # Llamamos a initUI una vez, donde se agregan los widgets al layout
@@ -296,7 +298,34 @@ class DataViewer(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
 
-    
+        # Define los labels para mostrar los datos del modelo cargado
+        self.formula_label = QLabel("Fórmula: ")
+        self.mse_label = QLabel("MSE: ")
+        self.r_squared_label = QLabel("R²: ")
+        self.description_text = QTextEdit()
+        self.description_text.setReadOnly(True)
+
+        # Agrega estos widgets al layout, pero inicialmente están ocultos
+        self.layout.addWidget(self.formula_label)
+        self.layout.addWidget(self.mse_label)
+        self.layout.addWidget(self.r_squared_label)
+        self.layout.addWidget(self.description_text)
+        
+        # Oculta los detalles del modelo cargado inicialmente
+        self.hide_model_details()
+
+        # Botón para cargar modelo
+        self.load_model_button = QPushButton("📂 Cargar Modelo", self)
+        self.load_model_button.setFont(QFont("Arial Black", 10))
+        self.load_model_button.setStyleSheet("""
+            QPushButton {
+                background-color: lightgreen; color: black; padding: 10px;}
+            QPushButton:hover {
+                background-color: darkgreen; color: white;}
+        """)
+        self.load_model_button.setEnabled(True)  # Desactivado hasta que sea necesario
+        self.load_model_button.clicked.connect(self.open_model_loader)
+        self.layout.addWidget(self.load_model_button)
     
         # Botón para guardar el modelo
         self.save_model_button = QPushButton("💾 Guardar Modelo", self)
@@ -315,13 +344,22 @@ class DataViewer(QWidget):
         self.setWindowTitle('Visualizador de Datasets')
         self.resize(800, 600)
 
+    
+    def open_model_loader(self):
+        try:
+            # Llama directamente al método de ModelLoader para cargar el modelo
+            model_loader = ModelLoader(self)  # Crea el objeto de ModelLoader
+            model_loader.load_model_dialog()  # Abre el diálogo de selección de archivo para cargar el modelo
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Ocurrió un error al cargar el modelo: {str(e)}")
+
 
 
     def open_model_saver(self):
         try:
-            # Verifica si tienes los datos del modelo listos
             model_data = {
-                'model': self.result_window.model,  # Asegúrate de que aquí pasas el modelo real
+                'model': self.result_window.model,
                 'formula': self.result_window.formula_label.text(),
                 'r_squared': getattr(self.result_window, 'r_squared', None),
                 'mse': getattr(self.result_window, 'mse', None),
@@ -330,16 +368,27 @@ class DataViewer(QWidget):
                 'description': self.result_window.text_box.toPlainText()
             }
 
-            # Llamar directamente a ModelSaver para guardar el modelo
             model_saver = ModelSaver(**model_data)
-            model_saver.save_model_dialog()  # Esto abrirá el diálogo para seleccionar el archivo y guardar directamente
+            model_saver.save_model_dialog()
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Ocurrió un error al guardar el modelo: {str(e)}")
+    
+    # Método para ocultar los detalles del modelo
+    def hide_model_details(self):
+        self.formula_label.setVisible(False)
+        self.mse_label.setVisible(False)
+        self.r_squared_label.setVisible(False)
+        self.description_text.setVisible(False)
 
+    # Método para mostrar los detalles del modelo
+    def show_model_details(self):
+        self.formula_label.setVisible(True)
+        self.mse_label.setVisible(True)
+        self.r_squared_label.setVisible(True)
+        self.description_text.setVisible(True)
 
-
-
+       
 
     def show_results(self):
         from results_window import ResultWindow
@@ -349,6 +398,7 @@ class DataViewer(QWidget):
             QMessageBox.information(self, "Éxito", "El modelo de regresión se ha creado correctamente.")
             self.result_window.show()
 
+            
             self.save_model_button.setEnabled(True)
         
         except Exception as e:
