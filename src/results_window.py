@@ -57,6 +57,8 @@ class ResultWindow(QWidget):
         formula, mse, r2, x_test, y_test, predictions, model = regresion_lineal(self.data, self.columnas_entrada, self.columna_salida)
 
         self.model = model
+        self.mse = mse
+        self.r_squared = r2
 
         # Display formula and metrics
         self.formula_label.setText(f"{formula}\nMSE: {mse:.2f}\nR^2: {r2:.2f}")
