@@ -44,7 +44,7 @@ def regresion_lineal(data,columnas_entrada,columna_salida):
     for i, coef in enumerate(coeficientes):
         formula += f" + ({coef:.2f}) * {columnas_entrada[i]}"
 
-    return formula, mse, r2, x_test, y_test, predictions
+    return formula, mse, r2, x_test, y_test, predictions, model
 
 def mostrar_grafica_regresion(y_test, predictions):
     # Generate the plot for regression
