@@ -142,6 +142,48 @@ class DataViewer(QWidget):
         self.create_model_button.clicked.connect(self.show_results)
         self.layout.addWidget(self.create_model_button)
 
+        # Define los labels para mostrar los datos del modelo cargado
+        self.formula_label = QLabel("Fórmula: ")
+        self.mse_label = QLabel("MSE: ")
+        self.r_squared_label = QLabel("R²: ")
+        self.description_text = QTextEdit()
+        self.description_text.setReadOnly(True)
+
+        # Agrega estos widgets al layout, pero inicialmente están ocultos
+        self.layout.addWidget(self.formula_label)
+        self.layout.addWidget(self.mse_label)
+        self.layout.addWidget(self.r_squared_label)
+        self.layout.addWidget(self.description_text)
+        
+        # Oculta los detalles del modelo cargado inicialmente
+        self.hide_model_details()
+
+        # Botón para cargar modelo
+        self.load_model_button = QPushButton("📂 Cargar Modelo", self)
+        self.load_model_button.setFont(QFont("Arial Black", 10))
+        self.load_model_button.setStyleSheet("""
+            QPushButton {
+                background-color: lightblue; color: black; padding: 10px;}
+            QPushButton:hover {
+                background-color: blue; color: white;}
+        """)
+        self.load_model_button.setEnabled(True)  # Desactivado hasta que sea necesario
+        self.load_model_button.clicked.connect(self.open_model_loader)
+        self.layout.addWidget(self.load_model_button)
+
+        # Botón para guardar el modelo
+        self.save_model_button = QPushButton("💾 Guardar Modelo", self)
+        self.save_model_button.setFont(QFont("Arial Black", 10))
+        self.save_model_button.setStyleSheet("""
+            QPushButton {
+                background-color: lightblue; color: black; padding: 10px;}
+            QPushButton:hover {
+                background-color: darkblue; color: white;}
+        """)
+        self.save_model_button.setEnabled(False)
+        self.save_model_button.clicked.connect(self.open_model_saver)
+        self.layout.addWidget(self.save_model_button)
+
         # Configurar layout
         self.setLayout(self.layout)
         self.setWindowTitle('Visualizador de Datasets')
@@ -297,52 +339,6 @@ class DataViewer(QWidget):
             QMessageBox.information(self, "Éxito", "Preprocesado aplicado con éxito.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
-
-        # Define los labels para mostrar los datos del modelo cargado
-        self.formula_label = QLabel("Fórmula: ")
-        self.mse_label = QLabel("MSE: ")
-        self.r_squared_label = QLabel("R²: ")
-        self.description_text = QTextEdit()
-        self.description_text.setReadOnly(True)
-
-        # Agrega estos widgets al layout, pero inicialmente están ocultos
-        self.layout.addWidget(self.formula_label)
-        self.layout.addWidget(self.mse_label)
-        self.layout.addWidget(self.r_squared_label)
-        self.layout.addWidget(self.description_text)
-        
-        # Oculta los detalles del modelo cargado inicialmente
-        self.hide_model_details()
-
-        # Botón para cargar modelo
-        self.load_model_button = QPushButton("📂 Cargar Modelo", self)
-        self.load_model_button.setFont(QFont("Arial Black", 10))
-        self.load_model_button.setStyleSheet("""
-            QPushButton {
-                background-color: lightgreen; color: black; padding: 10px;}
-            QPushButton:hover {
-                background-color: darkgreen; color: white;}
-        """)
-        self.load_model_button.setEnabled(True)  # Desactivado hasta que sea necesario
-        self.load_model_button.clicked.connect(self.open_model_loader)
-        self.layout.addWidget(self.load_model_button)
-    
-        # Botón para guardar el modelo
-        self.save_model_button = QPushButton("💾 Guardar Modelo", self)
-        self.save_model_button.setFont(QFont("Arial Black", 10))
-        self.save_model_button.setStyleSheet("""
-            QPushButton {
-                background-color: lightblue; color: black; padding: 10px;}
-            QPushButton:hover {
-                background-color: darkblue; color: white;}
-        """)
-        self.save_model_button.setEnabled(False)
-        self.save_model_button.clicked.connect(self.open_model_saver)
-        self.layout.addWidget(self.save_model_button)
-
-        # Configuración de ventana
-        self.setWindowTitle('Visualizador de Datasets')
-        self.resize(800, 600)
 
     
     def open_model_loader(self):
