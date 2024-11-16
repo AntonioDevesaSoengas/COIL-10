@@ -41,3 +41,7 @@ class Button():
                 button.setMinimumSize(width,height)
             button.setVisible(visibility)
             return button
+
+    # Function to set the Button Style Sheet
+    def set_StyleSheet(self,button,background_color:str,color:str,padding:str):
+        button.setStyleSheet(f"background-color:{background_color}; color: {color}; padding: {padding};")
