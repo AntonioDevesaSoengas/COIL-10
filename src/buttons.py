@@ -45,3 +45,11 @@ class Button():
     # Function to set the Button Style Sheet
     def set_StyleSheet(self,button,background_color:str,color:str,padding:str):
         button.setStyleSheet(f"background-color:{background_color}; color: {color}; padding: {padding};")
+        self.background_color = background_color
+        self.color = color
+        self.padding = padding
+
+    # Function to set the QPushButton Style Sheet when hover
+    def set_QPushButton_hoverStyle(self,button,background_color:str,color:str):
+        StyleSheet = "\nQPushButton{"+f"background-color:{self.background_color};color:{self.color};padding:{self.padding};"+"}QPushButton:hover{"+f"background-color:{background_color};color:{color};"+"}"
+        button.setStyleSheet(StyleSheet)
