@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from import_files import import_data
-from data_preprocessing import detect_missing_values, remove_missing_values, fill_with_mean, fill_with_median, fill_with_constant
+from data_preprocessing import *
+from table import Table
 
 class DataViewer(QWidget):
     def __init__(self):
@@ -14,6 +15,7 @@ class DataViewer(QWidget):
         self.last_file_path = None
         self.columnas_entrada = []
         self.columna_salida = []
+        self.data_table = None
         self.move = 1
 
     def initUI(self):
@@ -93,13 +95,11 @@ regression based on them""")
         self.first_step_layout.addWidget(self.file_label)
 
         # Table to display data
-        self.data_table = QTableWidget()
-        self.data_table.setFont(QFont('Arial', 10))
-        self.data_table.setRowCount(0)
-        self.data_table.setColumnCount(0)
-        self.data_table.setVisible(False)
-        self.first_step_layout.addWidget(self.data_table)
-        self.main_layout.addLayout(self.first_step_layout)
+        self.table_view = QTableView()
+        self.table_view.setFont(QFont("Aria",10))
+        self.table_view.setVisible(False)
+        self.first_step_layout.addWidget(self.table_view)
+        self.main_layout.addLayout(self.first_step_layout) 
         #-----------------------------------------------------------------------------------------------------------------------
         # SECOND STEP: Nan values
         #-----------------------------------------------------------------------------------------------------------------------
@@ -246,13 +246,12 @@ regression based on them""")
 
     def load_data(self, file_path):
         try:
-            data = import_data(file_path)
-            if data is not None and not data.empty:
-                self.df = data
-                self.display_data_in_table(data)
+            self.df = import_data(file_path)
+            if self.df is not None and not self.df.empty:
+                self.display_data_in_table(self.df)
                 # Enable buttons if data is loaded correctly
                 self.file_label.setText(f'📂 Archivo cargado: {file_path}')
-                self.populate_selectors(data) 
+                self.populate_selectors(self.df) 
             else:
                 QMessageBox.warning(self, "Advertencia", "El archivo está vacío o no se pudo cargar correctamente.")
         except pd.errors.EmptyDataError:
@@ -263,13 +262,8 @@ regression based on them""")
             QMessageBox.critical(self, "Error", f"No se pudo cargar el archivo: {str(e)}")
 
     def display_data_in_table(self, data):
-        self.data_table.setRowCount(len(data))
-        self.data_table.setColumnCount(len(data.columns))
-        self.data_table.setHorizontalHeaderLabels(data.columns)
-
-        for i, row in data.iterrows():
-            for j, value in enumerate(row):
-                self.data_table.setItem(i, j, QTableWidgetItem(str(value)))
+        self.data_table = Table(self.df)
+        self.table_view.setModel(self.data_table)
 
         # Show file path
         self.file_label.setVisible(True)
@@ -278,19 +272,18 @@ regression based on them""")
         self.next_button.setEnabled(True)
 
         # Adjust Table Size
-        # Ajustar tamaño de tabla
-        self.data_table.resizeColumnsToContents()
-        self.data_table.resizeRowsToContents()
-        self.data_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.data_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.table_view.resizeColumnsToContents()
+        self.table_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.table_view.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def resizeEvent(self, event):
         # Adjust the size of the table when resizing the window
         window_width = self.width()
         
         if window_width < 1000:
-            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-            self.data_table.resizeColumnsToContents()
+            self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+            self.table_view.resizeColumnsToContents()
+            # Welcome
             self.spacer.changeSize(0,20)
             self.hello.setFont(QFont("Arial", 25))  
             self.welcome_message.setFont(QFont("Arial", 18))
@@ -304,7 +297,7 @@ regression based on them""")
             self.setMinimumSize(800,600)
 
         else:
-            self.data_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
             self.spacer.changeSize(0,40)
             self.hello.setFont(QFont("Arial",45))
             self.welcome_message.setFont(QFont("Arial",35))
@@ -358,6 +351,7 @@ regression based on them""")
         file_path = self.open_file_dialog()
         if file_path and file_path != self.last_file_path:
             self.data_table.clear()
+            self.load_data()
 
     # Preprocessing function to detect Non-existent Values
     def handle_detect_missing_values(self):
@@ -442,14 +436,14 @@ regression based on them""")
             self.back_button.setVisible(False)
             self.file_label.setVisible(False)
             self.return_button.setEnabled(False)
-            if self.data_table.columnCount() == 0:
+            if self.data_table is None:
                 self.next_button.setEnabled(False)
             else:
                 self.next_button.setEnabled(True)
             
         elif self.move == 2:
             self.layout_visibility(True,True, self.nan_layout)
-            self.data_table.setVisible(True)
+            self.table_view.setVisible(True)
             self.return_button.setEnabled(True)
             self.next_button.setEnabled(True)
         else:
