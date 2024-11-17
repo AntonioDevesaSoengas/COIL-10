@@ -58,7 +58,7 @@ class Button():
         button.setStyleSheet(StyleSheet)
 
     # Function to change the Button Font and Size
-    def change_style(self,button,font_type:str,font_size:int,weight:int,height:int):
+    def change_style(self,button,font_type:str,font_size:int,width:int,height:int):
         button.setFont(QFont(font_type,font_size))
         if height != None and width != None:
             if width == None:
