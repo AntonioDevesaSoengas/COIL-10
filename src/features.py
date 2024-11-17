@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from import_files import import_data
 from data_preprocessing import *
 from table import Table
+from buttons import Button
 
 class DataViewer(QWidget):
     def __init__(self):
@@ -23,6 +24,7 @@ class DataViewer(QWidget):
         self.main_layout = QVBoxLayout()
         # Front/Back layout
         self.NBlayout = QHBoxLayout()
+        self.button = Button()
 
         # Welcome Message
         #-----------------------------------------------------------------------------------------------------------------------
@@ -62,30 +64,17 @@ regression based on them""")
         #-----------------------------------------------------------------------------------------------------------------------
         self.first_step_layout = QVBoxLayout()
         # Botón para cargar archivo
-        self.load_button = QPushButton('📂 Cargar Dataset', self)
-        self.load_button.setFixedWidth(260)
-        self.load_button.setStyleSheet("""
-            QPushButton{
-                background-color: green; color: white; padding: 10px;}
-            QPushButton:hover{
-                background-color: darkgreen; color: lightgrey;}
-        """)
+        self.load_button = self.button.add_QPushButton('📂 Cargar Dataset',"Arial",12,243,None,False)
+        self.button.set_StyleSheet(self.load_button,"green","white","10px")
+        self.button.set_QPushButton_hoverStyle(self.load_button,"darkgreen","lightgrey")
         self.load_button.clicked.connect(self.open_file_dialog)
-        self.load_button.setVisible(False)
         self.first_step_layout.addWidget(self.load_button)
 
         # Button to go back and choose another file
-        self.back_button = QPushButton('🔄 Elegir otro archivo', self)
-        self.back_button.setFont(QFont('Arial Black', 12))
-        self.back_button.setFixedWidth(260)
-        self.back_button.setStyleSheet("""
-            QPushButton{
-                background-color: orange; color: white; padding: 10px;}
-            QPushButton:hover{
-                background-color: darkorange; color: lightgrey;}
-        """)
+        self.back_button = self.button.add_QPushButton("🔄️ Elegir otro archivo","Arial Black",12,262,None,False)
+        self.button.set_StyleSheet(self.back_button,"orange","white","10px")
+        self.button.set_QPushButton_hoverStyle(self.back_button,"darkorange","lightgrey")
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
-        self.back_button.setVisible(False)  # No visible hasta cargar los datasets
         self.first_step_layout.addWidget(self.back_button)
 
         # Label to display the path of the uploaded file
@@ -96,7 +85,7 @@ regression based on them""")
 
         # Table to display data
         self.table_view = QTableView()
-        self.table_view.setFont(QFont("Aria",10))
+        self.table_view.setFont(QFont("Arial",10))
         self.table_view.setVisible(False)
         self.first_step_layout.addWidget(self.table_view)
         self.main_layout.addLayout(self.first_step_layout) 
@@ -106,26 +95,18 @@ regression based on them""")
         # Nan Layout
         self.nan_layout = QVBoxLayout()
         # Button for detecting non-existent values
-        self.detect_button = QPushButton('🔍 Detectar', self)
+        self.detect_button = self.button.add_QPushButton("🔍 Detectar","Arial",10,None,None,False)
         self.detect_button.clicked.connect(self.handle_detect_missing_values)
-        self.detect_button.setVisible(False)
         self.nan_layout.addWidget(self.detect_button)
 
         # Drop-down menu for pre-processing options
-        self.preprocessing_options = QComboBox(self)
-        self.preprocessing_options.addItems([
-            "🗑️ Eliminar Filas con Valores Inexistentes",
-            "📊 Rellenar con la Media",
-            "📊 Rellenar con la Mediana",
-            "✏️ Rellenar con un Valor Constante"
-        ])
-        self.preprocessing_options.setVisible(False)
+        items = ["🗑️ Eliminar Filas con Valores Inexistentes","📊 Rellenar con la Media","📊 Rellenar con la Mediana",
+            "✏️ Rellenar con un Valor Constante"]
+        self.preprocessing_options = self.button.add_QComboBox(items,None,None,False)
         self.nan_layout.addWidget(self.preprocessing_options)
 
         # Confirmation button to apply pre-processing
-        self.apply_button = QPushButton('🟢 Aplicar Preprocesado', self)
-        self.apply_button.setFont(QFont('Arial Black', 8))
-        self.apply_button.setVisible(False)
+        self.apply_button = self.button.add_QPushButton("🟢 Aplicar Preprocesado","Arial Black",8,None,None,False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
         self.nan_layout.addWidget(self.apply_button)
         self.main_layout.addLayout(self.nan_layout)
@@ -168,28 +149,16 @@ regression based on them""")
         self.regresion_layout.addWidget(self.target_selector)
 
         # Confirmation button
-        self.confirm_button = QPushButton('✅ Confirmar selección', self)
-        self.confirm_button.setFont(QFont('Arial Black', 10))
-        self.confirm_button.setStyleSheet("""
-            QPushButton{
-                background-color: lightgreen; color: darkgrey;}
-            QPushButton:hover{
-                background-color: green; color: white;}
-        """)
-        self.confirm_button.setVisible(False)  
+        self.confirm_button = self.button.add_QPushButton("✅ Confirmar selección","Arial Black",10,None,None,False)
+        self.button.set_StyleSheet(self.confirm_button,"lightgreen","lightblack","5px")
+        self.button.set_QPushButton_hoverStyle(self.confirm_button,"green","white")
         self.confirm_button.clicked.connect(self.confirm_selection)
         self.regresion_layout.addWidget(self.confirm_button)
 
         # Create Regression Model Button
-        self.create_model_button = QPushButton('📈 Crear Modelo de Regresión', self)
-        self.create_model_button.setFont(QFont('Arial Black', 10))
-        self.create_model_button.setStyleSheet("""
-            QPushButton{
-                background-color: blue; color: white; padding: 10px;}
-            QPushButton:hover{
-                background-color: darkblue; color: lightgrey;}
-        """)
-        self.create_model_button.setVisible(False)  
+        self.create_model_button = self.button.add_QPushButton("📈 Crear Modelo de Regresión","Arial Black",10,None,None,False)
+        self.button.set_StyleSheet(self.create_model_button,"lightblue","lightblack","10px")
+        self.button.set_QPushButton_hoverStyle(self.create_model_button,"blue","white")  
         self.create_model_button.clicked.connect(self.show_results)
         self.regresion_layout.addWidget(self.create_model_button)
         self.main_layout.addLayout(self.regresion_layout)
@@ -288,12 +257,9 @@ regression based on them""")
             self.hello.setFont(QFont("Arial", 25))  
             self.welcome_message.setFont(QFont("Arial", 18))
             self.start_label.setFont(QFont("Arial",12))
-            self.start_button.setFont(QFont("Arial Black",12))
-            self.start_button.setMaximumWidth(350)
-            self.load_button.setFont(QFont('Arial Black', 12))
-            self.load_button.setMaximumWidth(100)
-            self.back_button.setFont(QFont('Arial Black', 12))
-            self.back_button.setMaximumWidth(100)
+            self.button.change_style(self.start_button,"Arial Black",12,300,50)
+            self.button.change_style(self.load_button,"Arial Black",12,243,None)
+            self.button.change_style(self.back_button,"Arial Black",12,262,None)
             self.setMinimumSize(800,600)
 
         else:

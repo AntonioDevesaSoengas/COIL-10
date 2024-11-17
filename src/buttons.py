@@ -4,44 +4,44 @@ from PyQt5.QtCore import Qt
 
 class Button():
     # Function to add a QPushButton 
-    def add_QPushButton(self,text:str,font_type:str,font_size:int,height:int,width:int,visibility:bool):
+    def add_QPushButton(self,text:str,font_type:str,font_size:int,width:int,height:int,visibility:bool):
         button = QPushButton(text)
         button.setFont(QFont(font_type,font_size))
-        if height != None and width != None:
-            if width == None:
-                button.setMinimumHeight(height)
-            elif height == None:
-                button.setMinimumWidth(width)
+        if height is not None or width is not None:
+            if width is None:
+                button.setMaximumHeight(height)
+            elif height is None:
+                button.setMaximumWidth(width)
             else:
-                button.setMinimumSize(width,height)
+                button.setFixedSize(width,height)
         button.setVisible(visibility)
         return button
 
     # Function to add a QRadioButton
-    def add_QRadioButton(self,text:str,font_type:str,font_size:str,height:int,width:int,visibility:bool):
+    def add_QRadioButton(self,text:str,font_type:str,font_size:str,width:int,height:int,visibility:bool):
         button = QRadioButton(text)
         button.setFont(QFont(font_type,font_size))
-        if height != None and width != None:
+        if height is not None or width is not None:
             if width == None:
-                button.setMinimumHeight(height)
+                button.setMaximumHeight(height)
             elif height == None:
-                button.setMinimumWidth(width)
+                button.setMaximumWidth(width)
             else:
-                button.setMinimumSize(width,height)
+                button.setFixedSize(width,height)
         button.setVisible(visibility)
         return button
     
     # Function to add a QComboBox
-    def add_QComboBox(self,items:list,height:int,width:int,visibility:bool):
+    def add_QComboBox(self,items:list,width:int,height:int,visibility:bool):
             button = QComboBox()
             button.addItems(items)
-            if height != None and width != None:
+            if height is not None or width is not None:
                 if width == None:
-                    button.setMinimumHeight(height)
+                    button.setMaximumHeight(height)
                 elif height == None:
-                    button.setMinimumWidth(width)
+                    button.setMaximumWidth(width)
                 else:
-                    button.setMinimumSize(width,height)
+                    button.setFixedSize(width,height)
             button.setVisible(visibility)
             return button
 
@@ -60,11 +60,11 @@ class Button():
     # Function to change the Button Font and Size
     def change_style(self,button,font_type:str,font_size:int,width:int,height:int):
         button.setFont(QFont(font_type,font_size))
-        if height != None and width != None:
+        if height is not None or width is not None:
             if width == None:
-                button.setMinimumHeight(height)
+                button.setMaximumHeight(height)
             elif height == None:
-                button.setMinimumWidth(width)
+                button.setMaximumWidth(width)
             else:
-                button.setMinimumSize(width,height)
+                button.setFixedSize(width,height)
         
