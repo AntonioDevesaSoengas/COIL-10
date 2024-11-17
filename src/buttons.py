@@ -53,3 +53,14 @@ class Button():
     def set_QPushButton_hoverStyle(self,button,background_color:str,color:str):
         StyleSheet = "\nQPushButton{"+f"background-color:{self.background_color};color:{self.color};padding:{self.padding};"+"}QPushButton:hover{"+f"background-color:{background_color};color:{color};"+"}"
         button.setStyleSheet(StyleSheet)
+
+    # Function to change the Button Font and Size
+    def change_style(self,button,font_type:str,font_size:int,weight:int,height:int):
+        button.setFont(QFont(font_type,font_size))
+        if width == None:
+            button.setMaximumHeight(height)
+        if height == None:
+            button.setMaximumWidth(width)
+        else:
+            button.setMinimumSize(width,height)
+        
