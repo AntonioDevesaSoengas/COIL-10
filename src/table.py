@@ -24,3 +24,6 @@ class Table(QAbstractTableModel):
             if orientation == Qt.Vertical:
                 return str(self.data.index[section])
         return None
+
+    def is_empty(self):
+            return self.columnCount == 0 and self.rowCount == 0
