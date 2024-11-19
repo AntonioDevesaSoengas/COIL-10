@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont   
 from PyQt5.QtCore import Qt
-from scikit_learn import regresion_lineal,mostrar_grafica_regresion
+from scikit_learn import linear_regression,plot_regression_graph
 
 
 class ResultWindow(QWidget):
@@ -54,14 +54,14 @@ class ResultWindow(QWidget):
     
     def display_results(self):
         # Run regression and get results
-        formula, mse, r2, x_test, y_test, predictions = regresion_lineal(self.data, self.columnas_entrada, self.columna_salida)
+        formula, mse, r2, x_test, y_test, predictions = linear_regression(self.data, self.columnas_entrada, self.columna_salida)
 
         # Display formula and metrics
         self.formula_label.setText(f"{formula}\nMSE: {mse:.2f}\nR^2: {r2:.2f}")
 
         # Generate and display the graph
         if len(self.columnas_entrada) == 1:
-            fig = mostrar_grafica_regresion(y_test, predictions)
+            fig = plot_regression_graph(y_test, predictions)
             self.canvas = FigureCanvas(fig)
             self.graph_layout.addWidget(self.canvas)
         else:
