@@ -20,10 +20,13 @@ class DataViewer(QWidget):
         self.move = 1
 
     def initUI(self):
-        # Principal layout        
+        # Main layout        
         self.main_layout = QVBoxLayout()
+        # Spacer Layout
+        self.spacer_layout = QHBoxLayout()
         # Front/Back layout
         self.NBlayout = QHBoxLayout()
+        # Button creator
         self.button = Button()
 
         # Welcome Message
@@ -59,6 +62,23 @@ regression based on them""")
         self.welcome_layout.addWidget(self.start_label)
         self.welcome_layout.addLayout(self.button_layout)
         self.main_layout.addLayout(self.welcome_layout)
+        #-----------------------------------------------------------------------------------------------------------------------
+        # Steps Guide
+        self.steps_layout = QVBoxLayout()
+        self.steps_label = QLabel("Steps:")
+        self.steps_label.setVisible(False)
+        self.first_step = QLabel("1. Load dataset")
+        self.first_step.setVisible(False)
+        self.second_step = QLabel("2. Delete empty values")
+        self.second_step.setVisible(False)
+        self.third_step = QLabel("3. Create linear regression model")
+        self.third_step.setVisible(False)
+        self.steps_layout.addWidget(self.steps_label)
+        self.steps_layout.addWidget(self.first_step)
+        self.steps_layout.addWidget(self.second_step)
+        self.steps_layout.addWidget(self.third_step)
+        self.spacer_layout.addLayout(self.steps_layout)
+        self.steps_layout.setAlignment(Qt.AlignTop)
         #-----------------------------------------------------------------------------------------------------------------------
         # FIRST STEP: Open file and display data
         #-----------------------------------------------------------------------------------------------------------------------
@@ -190,7 +210,8 @@ regression based on them""")
         # Configurar layout
         self.NBlayout.setAlignment(Qt.AlignBottom)
         self.main_layout.addLayout(self.NBlayout)
-        self.setLayout(self.main_layout)
+        self.spacer_layout.addLayout(self.main_layout)
+        self.setLayout(self.spacer_layout)
         self.setWindowTitle('Visualizador de Datasets')
 
     def open_file_dialog(self):
@@ -244,6 +265,8 @@ regression based on them""")
         self.table_view.resizeColumnsToContents()
         self.table_view.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.table_view.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        if self.width() > 1000:
+            self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
     def resizeEvent(self, event):
         # Adjust the size of the table when resizing the window
@@ -257,7 +280,7 @@ regression based on them""")
             self.hello.setFont(QFont("Arial", 25))  
             self.welcome_message.setFont(QFont("Arial", 18))
             self.start_label.setFont(QFont("Arial",12))
-            self.button.change_style(self.start_button,"Arial Black",12,300,50)
+            self.button.change_style(self.start_button,"Arial Black",12,300,None)
             self.button.change_style(self.load_button,"Arial Black",12,243,None)
             self.button.change_style(self.back_button,"Arial Black",12,262,None)
             self.setMinimumSize(800,600)
@@ -268,12 +291,9 @@ regression based on them""")
             self.hello.setFont(QFont("Arial",45))
             self.welcome_message.setFont(QFont("Arial",35))
             self.start_label.setFont(QFont("Arial",14))
-            self.start_button.setFont(QFont("Arial Black",18))
-            self.start_button.setMaximumWidth(450)
-            self.load_button.setFont(QFont('Arial Black', 16))
-            self.load_button.setMaximumWidth(325)
-            self.back_button.setFont(QFont('Arial Black', 16))
-            self.back_button.setMaximumWidth(350)
+            self.button.change_style(self.start_button,"Arial Black",18,450,None)
+            self.button.change_style(self.load_button,"Arial Black",16,325,None)
+            self.button.change_style(self.back_button,"Arial Black",16,350,None)
             self.setMinimumSize(800, 600)
 
         super().resizeEvent(event)
@@ -397,14 +417,16 @@ regression based on them""")
     def drive_through(self):
         self.layout_visibility(True,False,self.main_layout)
         self.layout_visibility(True,True,self.NBlayout)
+        self.layout_visibility(True,True,self.steps_layout)
         if self.move == 1:
             self.layout_visibility(True,True, self.first_step_layout)
-            self.back_button.setVisible(False)
             self.file_label.setVisible(False)
             self.return_button.setEnabled(False)
             if self.data_table is None:
+                self.back_button.setVisible(False)
                 self.next_button.setEnabled(False)
             else:
+                self.load_button.setVisible(False)
                 self.next_button.setEnabled(True)
             
         elif self.move == 2:
