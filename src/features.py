@@ -7,6 +7,7 @@ from import_files import import_data
 from data_preprocessing import *
 from table import Table
 from buttons import Button
+from welcome_window import WelcomeWindow
 
 class DataViewer(QWidget):
     def __init__(self):
@@ -24,6 +25,8 @@ class DataViewer(QWidget):
         self.main_layout = QVBoxLayout()
         # Spacer Layout
         self.spacer_layout = QHBoxLayout()
+        self.spacer = QSpacerItem(0,0)
+
         # Front/Back layout
         self.NBlayout = QHBoxLayout()
         # Button creator
@@ -31,37 +34,9 @@ class DataViewer(QWidget):
 
         # Welcome Message
         #-----------------------------------------------------------------------------------------------------------------------
-        self.hello = QLabel("¡Hello!")
-        self.hello.setAlignment(Qt.AlignCenter)
-        self.hello.setStyleSheet("font-weight: bold;")
-        self.welcome_message = QLabel("""Welcome to "our app", here you will be able to 
-upload your own datasets and create a linear 
-regression based on them""")
-        self.welcome_message.setAlignment(Qt.AlignCenter)
-        
-        self.spacer = QSpacerItem(0,0)
-        self.welcome_layout = QVBoxLayout()
-        self.welcome_layout.addWidget(self.hello)
-        self.welcome_layout.addItem(self.spacer)
-        self.welcome_layout.addWidget(self.welcome_message)
-        self.welcome_layout.setAlignment(Qt.AlignCenter)
-
-        # Start Button
-        self.start_label = QLabel("Click here to start\n👇")
-        self.start_label.setAlignment(Qt.AlignCenter)
-        self.start_button = QPushButton("Start My Linear Regresion")
-        self.start_button.setStyleSheet("color:green; padding:10px")
-        self.start_button.clicked.connect(self.delete_welcome)
-
-        self.button_layout = QHBoxLayout()
-        self.button_layout.addWidget(self.start_button)
-        self.button_layout.setAlignment(Qt.AlignCenter)
-
-        self.welcome_layout.addItem(self.spacer)
-        self.welcome_layout.addItem(self.spacer)
-        self.welcome_layout.addWidget(self.start_label)
-        self.welcome_layout.addLayout(self.button_layout)
-        self.main_layout.addLayout(self.welcome_layout)
+        self.welcome_window = WelcomeWindow()
+        self.welcome_window.start_clicked.connect(self.delete_welcome)
+        self.main_layout.addWidget(self.welcome_window)
         #-----------------------------------------------------------------------------------------------------------------------
         # Steps Guide
         self.steps_layout = QVBoxLayout()
@@ -268,36 +243,6 @@ regression based on them""")
         if self.width() > 1000:
             self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-    def resizeEvent(self, event):
-        # Adjust the size of the table when resizing the window
-        window_width = self.width()
-        
-        if window_width < 1000:
-            self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-            self.table_view.resizeColumnsToContents()
-            # Welcome
-            self.spacer.changeSize(0,20)
-            self.hello.setFont(QFont("Arial", 25))  
-            self.welcome_message.setFont(QFont("Arial", 18))
-            self.start_label.setFont(QFont("Arial",12))
-            self.button.change_style(self.start_button,"Arial Black",12,300,None)
-            self.button.change_style(self.load_button,"Arial Black",12,243,None)
-            self.button.change_style(self.back_button,"Arial Black",12,262,None)
-            self.setMinimumSize(800,600)
-
-        else:
-            self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-            self.spacer.changeSize(0,40)
-            self.hello.setFont(QFont("Arial",45))
-            self.welcome_message.setFont(QFont("Arial",35))
-            self.start_label.setFont(QFont("Arial",14))
-            self.button.change_style(self.start_button,"Arial Black",18,450,None)
-            self.button.change_style(self.load_button,"Arial Black",16,325,None)
-            self.button.change_style(self.back_button,"Arial Black",16,350,None)
-            self.setMinimumSize(800, 600)
-
-        super().resizeEvent(event)
-
     def populate_selectors(self, data):
         # Clean up your current selectors
         self.feature_selector.clear()
@@ -401,7 +346,8 @@ regression based on them""")
                     self.layout_visibility(True,True, item.layout())
 
     def delete_welcome(self):
-        self.layout_visibility(True,False,self.welcome_layout)
+        """Oculta la ventana de bienvenida y muestra el siguiente paso."""
+        self.welcome_window.setVisible(False)
         self.drive_through()
 
     def next(self):
