@@ -37,7 +37,7 @@ def remove_missing_values(viewer):
     """
     if viewer.df is not None:
         viewer.df = viewer.df.dropna()
-        viewer.display_data_in_table(viewer.df)
+        viewer.display_data_in_table()
         QMessageBox.information(
             viewer,
             "Success",
@@ -60,7 +60,7 @@ def fill_with_mean(viewer):
         num_cols = viewer.df.select_dtypes(include=["number"]).columns
         imputer = SimpleImputer(strategy="mean")
         viewer.df[num_cols] = imputer.fit_transform(viewer.df[num_cols])
-        viewer.display_data_in_table(viewer.df)
+        viewer.display_data_in_table()
         QMessageBox.information(
             viewer,
             "Success",
@@ -84,7 +84,7 @@ def fill_with_median(viewer):
         imputer = SimpleImputer(strategy="median")
         viewer.df[numeric_cols] = imputer.fit_transform(
             viewer.df[numeric_cols])
-        viewer.display_data_in_table(viewer.df)
+        viewer.display_data_in_table()
         QMessageBox.information(
             viewer,
             "Success",
@@ -115,7 +115,7 @@ def fill_with_constant(viewer):
         imputer = SimpleImputer(strategy="constant", fill_value=value)
         viewer.df[numeric_cols] = imputer.fit_transform(
             viewer.df[numeric_cols])
-        viewer.display_data_in_table(viewer.df)
+        viewer.display_data_in_table()
         QMessageBox.information(
             viewer,
             "Success",

@@ -4,12 +4,11 @@ from PyQt5.QtCore import Qt
 
 class LabelHelper:
     @staticmethod
-    def create_label(parent, text="", font=None, bold=False, italic=False, 
-                     html=False, alignment=Qt.AlignCenter, background_color=None, word_wrap=False):
+    def create_label(self, text="", font=None, bold=False, italic=False, 
+                     html=False, alignment=Qt.AlignCenter, background_color=None):
         """
         Crea una QLabel con el texto, fuente, alineación y estilos especificados.
         
-        :param parent: El widget padre.
         :param text: Texto a mostrar en la etiqueta.
         :param font: Tupla (familia, tamaño).
         :param bold: Booleano para activar la negrita.
@@ -20,7 +19,7 @@ class LabelHelper:
         :param word_wrap: Booleano para activar el ajuste automático de texto.
         :return: QLabel configurada.
         """
-        label = QLabel(parent)
+        label = QLabel()
         if html:
             label.setText(text)  # Texto con etiquetas HTML
         else:
@@ -33,9 +32,6 @@ class LabelHelper:
         
         # Configurar alineación
         label.setAlignment(alignment)
-
-        # Configurar el ajuste de palabras si está habilitado
-        label.setWordWrap(word_wrap)
 
         # Aplicar estilo de fondo y negrita si no es HTML
         style = ""

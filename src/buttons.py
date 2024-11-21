@@ -2,19 +2,50 @@ from PyQt5.QtWidgets import QPushButton, QButtonGroup, QRadioButton, QComboBox
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
+
 class Button():
     # Function to add a QPushButton 
-    def add_QPushButton(self,text:str,font_type:str,font_size:int,width:int,height:int,visibility:bool):
+    
+    def add_QPushButton(
+        self,text :str = "",font_type: str = "Arial",font_size: int = 12,
+        width: int = None,height: int = None,visibility:bool = True,
+        background_color: str = "",color:str = "",padding:str = ""
+    ):
         button = QPushButton(text)
-        button.setFont(QFont(font_type,font_size))
-        if height is not None or width is not None:
-            if width is None:
-                button.setMaximumHeight(height)
-            elif height is None:
-                button.setMaximumWidth(width)
-            else:
-                button.setFixedSize(width,height)
+
+        # Establecer la fuente si se proporcionó
+        if font_type or font_size:
+            # Si alguno de los parámetros de fuente es None, QFont los manejará con valores predeterminados
+            button.setFont(QFont(font_type, font_size if font_size else 12))
+
+            # Ajustar el tamaño del botón
+        if width is not None and height is not None:
+            button.setFixedSize(width, height)
+        elif width is not None:
+            button.setFixedWidth(width)
+        elif height is not None:
+            button.setFixedHeight(height)
+        
+        # Establecer la visibilidad
         button.setVisible(visibility)
+        
+        # Construir el estilo CSS
+        style = ""
+        if background_color:
+            style += f"background-color: {background_color}; "
+        if color:
+            style += f"color: {color}; "
+        if padding:
+            style += f"padding: {padding};"
+        
+        # Aplicar el estilo al botón si se ha definido alguno
+        if style:
+            button.setStyleSheet(style)
+
+        self.background_color = background_color
+        self.color = color
+        self.padding = padding
+        
         return button
 
     # Function to add a QRadioButton
@@ -45,26 +76,8 @@ class Button():
             button.setVisible(visibility)
             return button
 
-    # Function to set the Button Style Sheet
-    def set_StyleSheet(self,button,background_color:str,color:str,padding:str):
-        button.setStyleSheet(f"background-color:{background_color}; color: {color}; padding: {padding};")
-        self.background_color = background_color
-        self.color = color
-        self.padding = padding
 
     # Function to set the QPushButton Style Sheet when hover
     def set_QPushButton_hoverStyle(self,button,background_color:str,color:str):
         StyleSheet = "\nQPushButton{"+f"background-color:{self.background_color};color:{self.color};padding:{self.padding};"+"}QPushButton:hover{"+f"background-color:{background_color};color:{color};"+"}"
         button.setStyleSheet(StyleSheet)
-
-    # Function to change the Button Font and Size
-    def change_style(self,button,font_type:str,font_size:int,width:int,height:int):
-        button.setFont(QFont(font_type,font_size))
-        if height is not None or width is not None:
-            if width == None:
-                button.setMaximumHeight(height)
-            elif height == None:
-                button.setMaximumWidth(width)
-            else:
-                button.setFixedSize(width,height)
-        

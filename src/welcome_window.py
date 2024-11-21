@@ -2,31 +2,31 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal
 from helpers import LabelHelper
+from layouts import Layout
+from buttons import Button
 
 
 class WelcomeWindow(QWidget):
-    # Signal to indicate that the user has clicked "Start"
-    start_clicked = pyqtSignal()
+    def __init__(self):
+        super().__init__()
+        self.label = LabelHelper()
+        self.layout = Layout()
+        self.button = Button()
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.init_ui()
-
-    def init_ui(self):
-        """Initialize the UI for the welcome window."""
         # Main layout of the welcome window
-        layout = QVBoxLayout()
+        welcome_layout = QVBoxLayout()
+        welcome_layout.setAlignment(Qt.AlignCenter)
 
         # Create labels using LabelHelper with bold text
         self.hello = LabelHelper.create_label(
-            parent=self,
+            self,
             text="¡Hello!",
             font=("Arial", 25),
             bold=True
         )
 
         self.welcome_message = LabelHelper.create_label(
-            parent=self,
+            self,
             text="""<div style='text-align: center;'>
                     Welcome to "our app", here you will be able to<br>
                     upload your own datasets and create a linear<br>
@@ -38,39 +38,22 @@ class WelcomeWindow(QWidget):
 
         # Additional label to indicate that the user should click the button
         self.start_label = LabelHelper.create_label(
-            parent=self,
+            self,
             text="Click here to start\n👇",
             font=("Arial", 12)
         )
-
-        # Add top and bottom spacers with addStretch()
-        layout.addStretch()  # Top spacer
-
-        # Add labels to the main layout
-        layout.addWidget(self.hello, alignment=Qt.AlignCenter)
-        layout.addSpacing(10)  # Space between "hello" and "welcome_message"
-        layout.addWidget(self.welcome_message, alignment=Qt.AlignCenter)
-        layout.addSpacing(10)  # Space between "welcome_message" and "start_label"
-        layout.addWidget(self.start_label, alignment=Qt.AlignCenter)
-
+        
         # Create and style the start button
-        self.start_button = QPushButton("Start My Linear Regression")
-        self.start_button.setStyleSheet("color: green; padding: 10px;")
-        self.start_button.setFont(QFont("Arial", 12))
-        self.start_button.clicked.connect(self.on_start_clicked)
+        self.start_button = self.button.add_QPushButton(
+            text="Start My Linear Regression",
+            color="green",padding="10px",
+            font_type="Arial",font_size=12
+            )
 
-        # Add the button to the main layout
-        layout.addWidget(self.start_button, alignment=Qt.AlignCenter)
+        widgets = [self.hello, self.welcome_message,self.start_label,self.start_button]
 
-        layout.addStretch()  # Bottom spacer
-
-        self.setLayout(layout)
-        self.setWindowTitle('Welcome')
-        self.setMinimumSize(800, 600)
-
-    def on_start_clicked(self):
-        """Emit the start_clicked signal when the button is pressed."""
-        self.start_clicked.emit()
+        self.layout.add_Widget(welcome_layout,widgets)
+        self.setLayout(welcome_layout)
 
     def resizeEvent(self, event):
         """Adjust fonts when the window is resized."""
