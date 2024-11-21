@@ -1,62 +1,96 @@
 import sys
 import pandas as pd
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import (
+                            QWidget, QVBoxLayout, QHBoxLayout,
+                            QSpacerItem, QLabel, QTableView, QRadioButton,
+                            QListWidget, QAbstractItemView, QPushButton, 
+                            QFileDialog, QHeaderView
+                            )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from import_files import import_data
 from data_preprocessing import *
 from table import Table
 from buttons import Button
+from helpers import LabelHelper
 from welcome_window import WelcomeWindow
 
 class DataViewer(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
         self.df = None
         self.last_file_path = None
         self.columnas_entrada = []
         self.columna_salida = []
         self.data_table = None
         self.move = 1
+        self.initUI()
 
     def initUI(self):
-        # Main layout        
         self.main_layout = QVBoxLayout()
-        # Spacer Layout
         self.spacer_layout = QHBoxLayout()
-        self.spacer = QSpacerItem(0,0)
-
-        # Front/Back layout
+        self.spacer = QSpacerItem(0, 0)
         self.NBlayout = QHBoxLayout()
-        # Button creator
         self.button = Button()
+        self.setup_welcome_window()
+        self.setup_steps_guide()
+        self.setup_first_step()
+        self.setup_nan_step()
+        self.setup_regression_step()
+        self.setup_navigation_buttons()
+        self.finalize_layout()
 
-        # Welcome Message
-        #-----------------------------------------------------------------------------------------------------------------------
+    # Funcion que ejecuta la ventana de bienvenida
+    def setup_welcome_window(self):
         self.welcome_window = WelcomeWindow()
         self.welcome_window.start_clicked.connect(self.delete_welcome)
         self.main_layout.addWidget(self.welcome_window)
-        #-----------------------------------------------------------------------------------------------------------------------
-        # Steps Guide
+        
+    # Funcion que contiene los pasos del programa
+    def setup_steps_guide(self):
         self.steps_layout = QVBoxLayout()
-        self.steps_label = QLabel("Steps:")
-        self.steps_label.setVisible(False)
-        self.first_step = QLabel("1. Load dataset")
-        self.first_step.setVisible(False)
-        self.second_step = QLabel("2. Delete empty values")
-        self.second_step.setVisible(False)
-        self.third_step = QLabel("3. Create linear regression model")
-        self.third_step.setVisible(False)
+        self.steps_label = LabelHelper.create_label(
+            parent=self,
+            text="STEPS",
+            alignment=Qt.AlignLeft,
+            bold=True
+        )
+
+        self.first_step = LabelHelper.create_label(
+            parent=self,
+            text="1. Load Dataset",
+            alignment=Qt.AlignLeft,
+            italic=True
+        )
+
+        self.second_step = LabelHelper.create_label(
+            parent=self,
+            text="2. Delete Empty Values",
+            alignment=Qt.AlignLeft,
+            italic=True
+        )
+
+        self.third_step = LabelHelper.create_label(
+            parent=self,
+            text="3. Create Linear Regression",
+            alignment=Qt.AlignLeft,
+            italic=True
+        )
+
         self.steps_layout.addWidget(self.steps_label)
         self.steps_layout.addWidget(self.first_step)
         self.steps_layout.addWidget(self.second_step)
         self.steps_layout.addWidget(self.third_step)
         self.spacer_layout.addLayout(self.steps_layout)
         self.steps_layout.setAlignment(Qt.AlignTop)
+
+        # Ocultar el diseño de pasos completo
+        self.layout_visibility(True, False, self.steps_layout)
+
         #-----------------------------------------------------------------------------------------------------------------------
         # FIRST STEP: Open file and display data
         #-----------------------------------------------------------------------------------------------------------------------
+    def setup_first_step(self):
         self.first_step_layout = QVBoxLayout()
         # Botón para cargar archivo
         self.load_button = self.button.add_QPushButton('📂 Cargar Dataset',"Arial",12,243,None,False)
@@ -73,8 +107,11 @@ class DataViewer(QWidget):
         self.first_step_layout.addWidget(self.back_button)
 
         # Label to display the path of the uploaded file
-        self.file_label = QLabel('📂 Ruta del archivo cargado:')
-        self.file_label.setFont(QFont('Arial', 10))
+        self.file_label = LabelHelper.create_label(
+            parent=self,
+            text="📂 Ruta del archivo cargado:",
+            font=("Arial",10)
+        )
         self.file_label.setVisible(False)
         self.first_step_layout.addWidget(self.file_label)
 
@@ -84,10 +121,10 @@ class DataViewer(QWidget):
         self.table_view.setVisible(False)
         self.first_step_layout.addWidget(self.table_view)
         self.main_layout.addLayout(self.first_step_layout) 
-        #-----------------------------------------------------------------------------------------------------------------------
-        # SECOND STEP: Nan values
-        #-----------------------------------------------------------------------------------------------------------------------
-        # Nan Layout
+    #-----------------------------------------------------------------------------------------------------------------------
+    # SECOND STEP: Nan values
+    #-----------------------------------------------------------------------------------------------------------------------
+    def setup_nan_step(self):
         self.nan_layout = QVBoxLayout()
         # Button for detecting non-existent values
         self.detect_button = self.button.add_QPushButton("🔍 Detectar","Arial",10,None,None,False)
@@ -96,7 +133,7 @@ class DataViewer(QWidget):
 
         # Drop-down menu for pre-processing options
         items = ["🗑️ Eliminar Filas con Valores Inexistentes","📊 Rellenar con la Media","📊 Rellenar con la Mediana",
-            "✏️ Rellenar con un Valor Constante"]
+                "✏️ Rellenar con un Valor Constante"]
         self.preprocessing_options = self.button.add_QComboBox(items,None,None,False)
         self.nan_layout.addWidget(self.preprocessing_options)
 
@@ -105,10 +142,10 @@ class DataViewer(QWidget):
         self.apply_button.clicked.connect(self.confirm_preprocessing)
         self.nan_layout.addWidget(self.apply_button)
         self.main_layout.addLayout(self.nan_layout)
-        #-----------------------------------------------------------------------------------------------------------------------
-        # THIRD STEP: Options for the linear regresion
-        #-----------------------------------------------------------------------------------------------------------------------
-        # Regresion Layout
+    #-----------------------------------------------------------------------------------------------------------------------
+    # THIRD STEP: Options for the linear regresion
+    #-----------------------------------------------------------------------------------------------------------------------
+    def setup_regression_step(self):
         self.regresion_layout = QVBoxLayout()
         # Radio buttons to select the type of regression
         self.radio_simple = QRadioButton("Regresión Simple")
@@ -157,10 +194,11 @@ class DataViewer(QWidget):
         self.create_model_button.clicked.connect(self.show_results)
         self.regresion_layout.addWidget(self.create_model_button)
         self.main_layout.addLayout(self.regresion_layout)
-        #-----------------------------------------------------------------------------------------------------------------------
-        # Next and Back Buttons:
-        #-----------------------------------------------------------------------------------------------------------------------
-        #Return Button
+    #-----------------------------------------------------------------------------------------------------------------------
+    # Next and Back Buttons:
+    #-----------------------------------------------------------------------------------------------------------------------
+    #Return Button
+    def setup_navigation_buttons(self):
         self.back_layout = QVBoxLayout()
         self.return_button = QPushButton("<- Back")
         self.return_button.clicked.connect(self.back)
@@ -168,7 +206,6 @@ class DataViewer(QWidget):
         self.back_layout.addWidget(self.return_button)
         self.back_layout.setAlignment(Qt.AlignLeft)                
         self.NBlayout.addLayout(self.back_layout)
-
 
         # Next Button
         self.next_layout = QVBoxLayout()
@@ -179,15 +216,21 @@ class DataViewer(QWidget):
         self.next_layout.addWidget(self.next_button)
         self.next_layout.setAlignment(Qt.AlignRight)
         self.NBlayout.addLayout(self.next_layout)
-        #-----------------------------------------------------------------------------------------------------------------------
-        # Layouts
-        #-----------------------------------------------------------------------------------------------------------------------
-        # Configurar layout
+
+    def finalize_layout(self):
+        # Configurar alineación para los botones "Next" y "Back"
         self.NBlayout.setAlignment(Qt.AlignBottom)
+
+        # Añadir el diseño de navegación (Next y Back) al diseño principal
         self.main_layout.addLayout(self.NBlayout)
+
+        # Añadir espaciadores y finalizar la estructura de la ventana
         self.spacer_layout.addLayout(self.main_layout)
         self.setLayout(self.spacer_layout)
+
+        # Configurar las propiedades básicas de la ventana
         self.setWindowTitle('Visualizador de Datasets')
+        self.setMinimumSize(800, 600)
 
     def open_file_dialog(self):
         # Open File Explorer with PyQt5's QFileDialog
@@ -230,11 +273,18 @@ class DataViewer(QWidget):
         self.data_table = Table(self.df)
         self.table_view.setModel(self.data_table)
 
+        # Mostrar únicamente la tabla y elementos relevantes
+        self.table_view.setVisible(True)
+
         # Show file path
         self.file_label.setVisible(True)
         self.load_button.setVisible(False)
-        self.back_button.setVisible(True)
         self.next_button.setEnabled(True)
+
+        if self.move == 1:  # Solo mostrar el botón en el paso 1
+            self.back_button.setVisible(True)
+        else:  # Ocultar en pasos posteriores
+            self.back_button.setVisible(False)
 
         # Adjust Table Size
         self.table_view.resizeColumnsToContents()
@@ -328,26 +378,28 @@ class DataViewer(QWidget):
 
     #---------------------------------------------------------------------------------------------------------------------------
     # Program Execution
+    def layout_visibility(self, sublayouts: bool, visibility: bool, layout):
+        """
+        Controla la visibilidad de un diseño completo, incluyendo widgets y sublayouts.
 
-    def layout_visibility(self,sublayouts:bool,visibility:bool,layout):
+        Args:
+            sublayouts (bool): Si se debe aplicar la visibilidad a sublayouts.
+            visibility (bool): True para mostrar, False para ocultar.
+            layout: El diseño (layout) que queremos modificar.
+        """
         for i in reversed(range(layout.count())):
             item = layout.itemAt(i)
-            if visibility == False:
-                if item.widget():
-                    item.widget().setVisible(False)  
-                if isinstance(item, QSpacerItem):
-                    layout.removeItem(item) 
-                if item.layout() and sublayouts == True:
-                    self.layout_visibility(True,False, item.layout())
-            else:
-                if item.widget():
-                    item.widget().setVisible(True)  
-                if item.layout() and sublayouts == True:
-                    self.layout_visibility(True,True, item.layout())
+            
+            if item.widget():  # Si el elemento es un widget
+                item.widget().setVisible(visibility)
+            
+            elif item.layout() and sublayouts:  # Si el elemento es otro layout
+                self.layout_visibility(True, visibility, item.layout())
 
     def delete_welcome(self):
         """Oculta la ventana de bienvenida y muestra el siguiente paso."""
         self.welcome_window.setVisible(False)
+        self.layout_visibility(True,True,self.steps_layout)
         self.drive_through()
 
     def next(self):
@@ -363,7 +415,6 @@ class DataViewer(QWidget):
     def drive_through(self):
         self.layout_visibility(True,False,self.main_layout)
         self.layout_visibility(True,True,self.NBlayout)
-        self.layout_visibility(True,True,self.steps_layout)
         if self.move == 1:
             self.layout_visibility(True,True, self.first_step_layout)
             self.file_label.setVisible(False)
@@ -380,6 +431,11 @@ class DataViewer(QWidget):
             self.table_view.setVisible(True)
             self.return_button.setEnabled(True)
             self.next_button.setEnabled(True)
-        else:
-            self.layout_visibility(True,True, self.regresion_layout)
+
+            # Asegura que el botón de cargar datos siga oculto
+            self.back_button.setVisible(False)
+            self.file_label.setVisible(True)
+        
+        elif self.move == 3:  # Paso 3: Crear modelo
+            self.layout_visibility(True, True, self.regresion_layout)
             self.next_button.setEnabled(False)

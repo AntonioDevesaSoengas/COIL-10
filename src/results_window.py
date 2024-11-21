@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont   
 from PyQt5.QtCore import Qt
 from scikit_learn import linear_regression,plot_regression_graph
+from helpers import LabelHelper
 
 
 class ResultWindow(QWidget):
@@ -20,8 +21,12 @@ class ResultWindow(QWidget):
         vertical_layout = QVBoxLayout()
 
         # Text
-        self.result_label = QLabel("Descripción de mi modelo:")
-        self.result_label.setFont(QFont("Arial",9))
+        self.result_label = LabelHelper.create_label(
+            parent=self,
+            text = "Descripción de mi modelo:",
+            font=('Arial', 9),
+            alignment=Qt.AlignLeft
+        )
         # Descripcion del ususario
         self.text_box = QTextEdit()
         self.text_box.setPlaceholderText("Escriba aquí su descripción...")
@@ -35,8 +40,11 @@ class ResultWindow(QWidget):
         formula_group = QGroupBox("Fórmula del Modelo y Métricas")
         formula_layout = QVBoxLayout()
         
-        self.formula_label = QLabel()
-        self.formula_label.setFont(QFont("Arial", 9))
+        self.formula_label = LabelHelper.create_label(
+            parent=self,
+            font=('Arial', 9),
+            alignment=Qt.AlignLeft
+        )
         formula_layout.addWidget(self.formula_label)
         formula_group.setLayout(formula_layout)
 
