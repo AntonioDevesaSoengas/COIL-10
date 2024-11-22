@@ -8,7 +8,8 @@ class LabelHelper:
     @staticmethod
     def create_label(parent, text="", font=None, bold=False, italic=False,
                      html=False, alignment=Qt.AlignCenter, 
-                     background_color=None, word_wrap=False,color=None):
+                     background_color=None, word_wrap=False,color=None,
+                     visible=False):
         """
         Creates a QLabel with the specified text, font, alignment, and styles.
 
@@ -36,6 +37,9 @@ class LabelHelper:
 
         # Set alignment
         label.setAlignment(alignment)
+
+        # Visbility
+        label.setVisible(visible)
 
         # Enable word wrapping if specified
         label.setWordWrap(word_wrap)
@@ -116,7 +120,7 @@ class LabelHelper:
 
 class ButtonHelper:
     def add_QPushButton(self, text: str, font_type: str, font_size: int, width: int, height: int, visibility: bool,
-                        background_color: str = None, color: str = None, padding: str = None):
+                        background_color: str = None, color: str = None, padding: str = None, enabled=True):
         """
         Creates a QPushButton with the specified properties and optional stylesheet.
 
@@ -148,6 +152,7 @@ class ButtonHelper:
 
         # Apply visibility
         button.setVisible(visibility)
+        button.setEnabled(enabled)
 
         # Build and apply stylesheet
         style = ""
@@ -242,7 +247,7 @@ class LayoutHelper:
             else:
                 QMessageBox.critical(None, "Error", "You are trying to add an undefined item")
 
-    def add_separator(self, type: str, width: int, visibility: bool):
+    def add_separator(self, type: str, width: int, visibility: bool,color="black"):
         """
         Adds a separator (vertical or horizontal) to the layout.
         """
@@ -254,6 +259,7 @@ class LayoutHelper:
         if width is not None:
             separator.setLineWidth(width)
         separator.setVisible(visibility)
+        separator.setStyleSheet(f"color:{color};")
         return separator
 
     def layout_visibility(self, sublayouts: bool, visibility: bool, layout):
