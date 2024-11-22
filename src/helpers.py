@@ -7,7 +7,8 @@ from PyQt5.QtCore import Qt
 class LabelHelper:
     @staticmethod
     def create_label(parent, text="", font=None, bold=False, italic=False,
-                     html=False, alignment=Qt.AlignCenter, background_color=None, word_wrap=False):
+                     html=False, alignment=Qt.AlignCenter, 
+                     background_color=None, word_wrap=False,color=None):
         """
         Creates a QLabel with the specified text, font, alignment, and styles.
 
@@ -41,8 +42,10 @@ class LabelHelper:
 
         # Apply background color and styles if not using HTML
         style = ""
-        if background_color:
+        if background_color and not html:
             style += f"background-color: {background_color};"
+        if color and not html:
+            style += f"color: {color};"
         if bold and not html:
             style += "font-weight: bold;"
         if italic and not html:
@@ -53,8 +56,8 @@ class LabelHelper:
         return label
 
     @staticmethod
-    def edit_label(label, text=None, font=None, bold=None, italic=None,
-                   html=None, alignment=None, background_color=None, word_wrap=None):
+    def edit_label(label, text=None, font=None, bold=False, italic=None,
+                   html=None, alignment=None, background_color="transparent", word_wrap=None,padding="0px"):
         """
         Edits the properties of an existing QLabel.
 
@@ -68,12 +71,7 @@ class LabelHelper:
         :param background_color: New background color in CSS format.
         :param word_wrap: Boolean to enable/disable automatic text wrapping.
         """
-        if html is not None:
-            if html:
-                label.setText(text)  # Text interpreted as HTML
-            elif text is not None:
-                label.setText(text)  # Text without HTML
-        elif text is not None:
+        if text is not None:
             label.setText(text)
 
         if font:
@@ -105,6 +103,8 @@ class LabelHelper:
             style += "font-weight: bold;"
         if italic and not html:
             style += "font-style: italic;"
+        if padding and not html:
+            style += f"padding: {padding}"
         if style:
             label.setStyleSheet(style)
 
