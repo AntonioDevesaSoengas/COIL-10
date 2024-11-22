@@ -70,7 +70,7 @@ class WelcomeWindow(QWidget):
         layout.addSpacing(10)  # Space between "hello" and "welcome_message"
         layout.addWidget(self.welcome_message, alignment=Qt.AlignCenter)
         # Space between "welcome_message" and "start_label".
-        layout.addSpacing(10)
+        layout.addSpacing(20)
         layout.addWidget(self.start_label, alignment=Qt.AlignCenter)
 
         # Create and style the start button.
@@ -87,7 +87,6 @@ class WelcomeWindow(QWidget):
         # Configure the window.
         self.setLayout(layout)
         self.setWindowTitle("Welcome")
-        self.setMinimumSize(800, 600)
 
     def on_start_clicked(self):
         """
@@ -109,10 +108,12 @@ class WelcomeWindow(QWidget):
             self.welcome_message.setFont(QFont("Arial", 18))
             self.start_label.setFont(QFont("Arial", 12))
             self.start_button.setFont(QFont("Arial", 12))
+            self.setMinimumSize(800,600)
         else:
             self.hello.setFont(QFont("Arial", 45))
             self.welcome_message.setFont(QFont("Arial", 35))
             self.start_label.setFont(QFont("Arial", 16))
             self.start_button.setFont(QFont("Arial", 16))
+            self.setMinimumSize(800,600)
 
         super().resizeEvent(event)
