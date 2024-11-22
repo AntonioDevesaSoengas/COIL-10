@@ -52,6 +52,7 @@ class DataViewer(QWidget):
         self.steps_layout = QVBoxLayout()
         self.steps_label = LabelHelper.create_label(
             parent=self,
+            font=("Times New Roman",12),
             text="STEPS:",
             alignment=Qt.AlignLeft,
             bold=True
@@ -62,25 +63,26 @@ class DataViewer(QWidget):
         )
 
         self.first_step = LabelHelper.create_label(
+            font=("Arial",9),
             parent=self,
-            text="1. Load Dataset",
             alignment=Qt.AlignLeft,
             italic=True
         )
 
         self.second_step = LabelHelper.create_label(
+            font=("Arial",9),
             parent=self,
-            text="2. Delete Empty Values",
             alignment=Qt.AlignLeft,
             italic=True
         )
 
         self.third_step = LabelHelper.create_label(
+            font=("Arial",9),
             parent=self,
-            text="3. Create Linear Regression",
             alignment=Qt.AlignLeft,
             italic=True
         )
+        self.third_step.setMinimumWidth(250)
 
         self.layout_separator = self.layout.add_separator("vertical",None,
             False
@@ -100,8 +102,9 @@ class DataViewer(QWidget):
         self.first_step_layout = QVBoxLayout()
         # Botón para cargar archivo
         self.load_button = self.button.add_QPushButton('📂 Cargar Dataset',
-                                                       "Arial",12,243,None,False,
-                                                       background_color="green",color="white",padding="10px")
+            "Arial",12,243,None,False,
+            background_color="green",color="white",padding="10px"
+            )
         self.button.set_QPushButton_hoverStyle(self.load_button,"darkgreen","lightgrey")
         self.load_button.clicked.connect(self.open_file_dialog)
 
@@ -130,19 +133,34 @@ class DataViewer(QWidget):
     #-----------------------------------------------------------------------------------------------------------------------
     def setup_nan_step(self):
         self.nan_layout = QVBoxLayout()
-        # Button for detecting non-existent values
-        self.detect_button = self.button.add_QPushButton("🔍 Detectar","Arial",10,None,None,False)
-        self.detect_button.clicked.connect(self.handle_detect_missing_values)
 
+        self.sep = self.layout.add_separator("horizontal",None,False)
+
+        self.nan_label = self.label.create_label(
+            parent=self,
+            font=("Arial",12),
+            alignment=Qt.AlignLeft,
+            color="red",
+            bold=True,
+            )
+
+        self.separator = self.layout.add_separator("horizontal",
+        None,False
+        )
+        self.nan_values = self.label.create_label(
+            parent=self,
+            font=("Arial",10),
+            alignment=Qt.AlignLeft
+        )
         # Drop-down menu for pre-processing options
-        items = ["🗑️ Eliminar Filas con Valores Inexistentes","📊 Rellenar con la Media","📊 Rellenar con la Mediana",
+        items = ["Select an option","🗑️ Eliminar Filas con Valores Inexistentes","📊 Rellenar con la Media","📊 Rellenar con la Mediana",
                 "✏️ Rellenar con un Valor Constante"]
         self.preprocessing_options = self.button.add_QComboBox(items,None,None,False)
 
         # Confirmation button to apply pre-processing
         self.apply_button = self.button.add_QPushButton("🟢 Aplicar Preprocesado","Arial Black",8,None,None,False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
-        widgets = [self.detect_button,self.preprocessing_options,self.apply_button]
+        widgets = [self.sep,self.nan_label,self.nan_values,self.separator,self.preprocessing_options,self.apply_button]
         self.layout.add_widget(self.nan_layout,widgets)
     #-----------------------------------------------------------------------------------------------------------------------
     # THIRD STEP: Options for the linear regresion
@@ -237,7 +255,7 @@ class DataViewer(QWidget):
 
         # Configurar las propiedades básicas de la ventana
         self.setWindowTitle('Visualizador de Datasets')
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(800,600)
 
     def open_file_dialog(self):
         # Open File Explorer with PyQt5's QFileDialog
@@ -266,6 +284,7 @@ class DataViewer(QWidget):
                 self.display_data_in_table(self.df)
                 # Enable buttons if data is loaded correctly
                 self.file_label.setText(f'📂 Archivo cargado: {file_path}')
+                detect_missing_values(self)
                 self.populate_selectors(self.df) 
             else:
                 QMessageBox.warning(self, "Advertencia", "El archivo está vacío o no se pudo cargar correctamente.")
@@ -366,8 +385,6 @@ class DataViewer(QWidget):
 
             # Redisplay the table after preprocessing
             self.display_data_in_table(self.df)  # Make sure the table is updated with the new content
-
-            QMessageBox.information(self, "Éxito", "Preprocesado aplicado con éxito.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
 
@@ -424,6 +441,7 @@ class DataViewer(QWidget):
         self.layout_visibility(True,False,self.main_layout)
         self.layout_visibility(True,True,self.NBlayout)
         if self.move == 1:
+            self.steps_guide()
             self.layout_visibility(True,True, self.first_step_layout)
             self.file_label.setVisible(False)
             self.return_button.setEnabled(False)
@@ -435,6 +453,7 @@ class DataViewer(QWidget):
                 self.next_button.setEnabled(True)
             
         elif self.move == 2:
+            self.steps_guide()
             self.layout_visibility(True,True, self.nan_layout)
             self.table_view.setVisible(True)
             self.return_button.setEnabled(True)
@@ -445,5 +464,31 @@ class DataViewer(QWidget):
             self.file_label.setVisible(True)
         
         elif self.move == 3:  # Paso 3: Crear modelo
+            self.steps_guide()
             self.layout_visibility(True, True, self.regresion_layout)
             self.next_button.setEnabled(False)
+
+    def steps_guide(self):
+        text1 = "1. Load dataset"
+        text2 = "2. Delete empty values"
+        text3 = "3. Create linear regression model"
+        if self.move == 1:
+            self.label.edit_label(self.first_step,text=text1,
+            background_color="lightgreen",bold=True,padding="5px"
+            )
+            self.label.edit_label(self.second_step,text2)
+            self.label.edit_label(self.third_step,text3)
+
+        elif self.move == 2:
+            self.label.edit_label(self.second_step,text=text2,
+            background_color="lightgreen",bold=True,padding="5px"
+            )
+            self.label.edit_label(self.first_step,text1)
+            self.label.edit_label(self.third_step,text3)
+
+        else:
+            self.label.edit_label(self.third_step,text=text3,
+            background_color="lightgreen",bold=True,padding="5px"
+            )
+            self.label.edit_label(self.first_step,text1)
+            self.label.edit_label(self.second_step,text2)

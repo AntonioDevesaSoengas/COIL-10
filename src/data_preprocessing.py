@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMessageBox, QInputDialog
 from sklearn.impute import SimpleImputer
 
 
-def detect_missing_values(df):
+def detect_missing_values(viewer):
     """
     Detect missing values in the provided DataFrame.
 
@@ -14,17 +14,13 @@ def detect_missing_values(df):
         str: A message summarizing the missing values by column or 
              stating that the dataset is complete.
     """
-    missing_data = df.isnull().sum()
-    if missing_data.sum() == 0:
-        message = "No missing values detected. The dataset is complete."
-    else:
-        message = "--- Missing Values Detection ---\n"
-        message += (
-            "Missing values per column:\n"
-            f"{missing_data[missing_data > 0]}"
-        )
-    return message
-
+    if viewer.df is not None:
+        viewer.missing_data = viewer.df.isnull().sum()
+        nan_values = viewer.missing_data[viewer.missing_data > 0]
+        if viewer.missing_data.sum() != 0:
+            QMessageBox.warning(viewer,"Warning","There were empty values detected")
+            viewer.nan_label.setText(f"¡{nan_values[0]} empty values were detected!")
+            viewer.nan_values.setText(f"{nan_values.to_string()}")
 
 def remove_missing_values(viewer):
     """
