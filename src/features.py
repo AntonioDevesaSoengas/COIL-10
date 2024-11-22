@@ -384,19 +384,21 @@ class DataViewer(QWidget):
         self.r_squared_label.setVisible(True)
         self.description_text.setVisible(True)
 
-       
-
     def show_results(self):
-        from results_window import ResultWindow
+        """
+        Genera la ventana de resultados con la gráfica y habilita la funcionalidad de predicción.
+        """
+        from results_window import ResultWindow  # Asegúrate de que está correctamente importado
         try:
-            self.result_window = ResultWindow(self.df, self.columnas_entrada, self.columna_salida)
-            # Success Message
-            QMessageBox.information(self, "Éxito", "El modelo de regresión se ha creado correctamente.")
+            # Crear la ventana de resultados y pasar el modelo generado
+            self.result_window = ResultWindow(
+                self.df, self.columnas_entrada, self.columna_salida
+            )
             self.result_window.show()
-
-            
             self.save_model_button.setEnabled(True)
-        
+
         except Exception as e:
-            # Error Message
-            QMessageBox.critical(self, "Error", f"Ocurrió un error al crear el modelo: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Ocurrió un error al generar el modelo: {str(e)}")
+
+
+
