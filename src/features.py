@@ -88,7 +88,9 @@ class DataViewer(QWidget):
             False
         )
 
-        items_steps_layout = [self.steps_label,self.steps_separator,self.first_step,self.second_step,self.third_step]
+        items_steps_layout = [self.steps_label,self.steps_separator,
+            self.first_step,self.second_step,self.third_step
+        ]
         self.layout.add_widget(self.steps_layout,items_steps_layout)
         self.steps_layout.setAlignment(Qt.AlignTop)
 
@@ -102,7 +104,7 @@ class DataViewer(QWidget):
         self.first_step_layout = QVBoxLayout()
         # Botón para cargar archivo
         self.load_button = self.button.add_QPushButton('📂 Cargar Dataset',
-            "Arial",12,243,None,False,
+            "Arial Black",12,243,None,False,
             background_color="green",color="white",padding="10px"
             )
         self.button.set_QPushButton_hoverStyle(self.load_button,"darkgreen","lightgrey")
@@ -476,15 +478,12 @@ class DataViewer(QWidget):
             self.label.edit_label(self.first_step,text=text1,
             background_color="lightgreen",bold=True,padding="5px"
             )
-            self.label.edit_label(self.second_step,text2)
-            self.label.edit_label(self.third_step,text3)
 
         elif self.move == 2:
             self.label.edit_label(self.second_step,text=text2,
             background_color="lightgreen",bold=True,padding="5px"
             )
             self.label.edit_label(self.first_step,text1)
-            self.label.edit_label(self.third_step,text3)
 
         else:
             self.label.edit_label(self.third_step,text=text3,
