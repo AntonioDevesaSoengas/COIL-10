@@ -137,7 +137,9 @@ class DataViewer(QWidget):
     def setup_nan_step(self):
         self.nan_layout = QVBoxLayout()
 
-        self.sep = self.layout.add_separator("horizontal",None,False)
+        self.sep = self.layout.add_separator("horizontal",None,False,
+            color="red"
+            )
 
         self.nan_label = self.label.create_label(
             parent=self,
@@ -147,23 +149,27 @@ class DataViewer(QWidget):
             bold=True,
             )
 
-        self.separator = self.layout.add_separator("horizontal",
-        None,False
-        )
         self.nan_values = self.label.create_label(
             parent=self,
             font=("Arial",10),
             alignment=Qt.AlignLeft
         )
+
+        self.separator = self.layout.add_separator("horizontal",
+        None,False,color="red"
+        )
+
         # Drop-down menu for pre-processing options
-        items = ["Select an option","🗑️ Eliminar Filas con Valores Inexistentes","📊 Rellenar con la Media","📊 Rellenar con la Mediana",
+        self.option_label = self.label.create_label(self,"Choose an option for preprocessing nan values:",font=("Arial",8),alignment=Qt.AlignLeft)
+        items = ["Select an option...","🗑️ Eliminar Filas con Valores Inexistentes","📊 Rellenar con la Media","📊 Rellenar con la Mediana",
                 "✏️ Rellenar con un Valor Constante"]
         self.preprocessing_options = self.button.add_QComboBox(items,None,None,False)
+        self.preprocessing_options.currentIndexChanged.connect(self.preprocessing_button)
 
         # Confirmation button to apply pre-processing
-        self.apply_button = self.button.add_QPushButton("🟢 Aplicar Preprocesado","Arial Black",8,None,None,False)
+        self.apply_button = self.button.add_QPushButton("🟢 Aplicar Preprocesado","Arial Black",8,None,None,False,enabled=False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
-        widgets = [self.sep,self.nan_label,self.nan_values,self.separator,self.preprocessing_options,self.apply_button]
+        widgets = [self.sep,self.nan_label,self.nan_values,self.separator,self.option_label,self.preprocessing_options,self.apply_button]
         self.layout.add_widget(self.nan_layout,widgets)
     #-------------------------------------------------------------------------
     # THIRD STEP: Options for the linear regresion
@@ -363,6 +369,11 @@ class DataViewer(QWidget):
             self.data_table.clear()
             self.load_data()
 
+    def preprocessing_button(self):
+        if self.preprocessing_options.currentIndex() == 0:
+            self.apply_button.setEnabled(False)
+        else:
+            self.apply_button.setEnabled(True)
     # Apply the selected pre-processing option in the ComboBox
     def confirm_preprocessing(self):  
         option = self.preprocessing_options.currentText()
