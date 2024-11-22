@@ -11,10 +11,9 @@ from PyQt5.QtCore import Qt
 from import_files import import_data
 from data_preprocessing import *
 from table import Table
-from buttons import Button
-from helpers import LabelHelper
+from helpers import LabelHelper, ButtonHelper, LayoutHelper
 from welcome_window import WelcomeWindow
-from layouts import Layout
+
 
 class DataViewer(QWidget):
     def __init__(self):
@@ -32,8 +31,9 @@ class DataViewer(QWidget):
         self.spacer_layout = QHBoxLayout()
         self.spacer = QSpacerItem(0, 0)
         self.NBlayout = QHBoxLayout()
-        self.button = Button()
-        self.layout = Layout()
+        self.button = ButtonHelper()
+        self.layout = LayoutHelper()
+        self.label = LabelHelper()
         self.setup_welcome_window()
         self.setup_steps_guide()
         self.setup_first_step()
@@ -46,7 +46,6 @@ class DataViewer(QWidget):
     def setup_welcome_window(self):
         self.welcome_window = WelcomeWindow()
         self.welcome_window.start_clicked.connect(self.delete_welcome)
-        self.main_layout.addWidget(self.welcome_window)
         
     # Funcion que contiene los pasos del programa
     def setup_steps_guide(self):
@@ -87,17 +86,12 @@ class DataViewer(QWidget):
             False
         )
 
-        self.steps_layout.addWidget(self.steps_label)
-        self.steps_layout.addWidget(self.steps_separator)
-        self.steps_layout.addWidget(self.first_step)
-        self.steps_layout.addWidget(self.second_step)
-        self.steps_layout.addWidget(self.third_step)
-        self.spacer_layout.addLayout(self.steps_layout)
-        self.spacer_layout.addWidget(self.layout_separator)
+        items_steps_layout = [self.steps_label,self.steps_separator,self.first_step,self.second_step,self.third_step]
+        self.layout.add_widget(self.steps_layout,items_steps_layout)
         self.steps_layout.setAlignment(Qt.AlignTop)
 
         # Ocultar el diseño de pasos completo
-        self.layout_visibility(True, False, self.steps_layout)
+        self.layout.layout_visibility(True, False, self.steps_layout)
 
         #-----------------------------------------------------------------------------------------------------------------------
         # FIRST STEP: Open file and display data
@@ -105,18 +99,17 @@ class DataViewer(QWidget):
     def setup_first_step(self):
         self.first_step_layout = QVBoxLayout()
         # Botón para cargar archivo
-        self.load_button = self.button.add_QPushButton('📂 Cargar Dataset',"Arial",12,243,None,False)
-        self.button.set_StyleSheet(self.load_button,"green","white","10px")
+        self.load_button = self.button.add_QPushButton('📂 Cargar Dataset',
+                                                       "Arial",12,243,None,False,
+                                                       background_color="green",color="white",padding="10px")
         self.button.set_QPushButton_hoverStyle(self.load_button,"darkgreen","lightgrey")
         self.load_button.clicked.connect(self.open_file_dialog)
-        self.first_step_layout.addWidget(self.load_button)
 
         # Button to go back and choose another file
-        self.back_button = self.button.add_QPushButton("🔄️ Elegir otro archivo","Arial Black",12,262,None,False)
-        self.button.set_StyleSheet(self.back_button,"orange","white","10px")
+        self.back_button = self.button.add_QPushButton("🔄️ Elegir otro archivo","Arial Black",12,262,None,False,
+                                                       background_color="orange",color="white",padding="10px")
         self.button.set_QPushButton_hoverStyle(self.back_button,"darkorange","lightgrey")
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
-        self.first_step_layout.addWidget(self.back_button)
 
         # Label to display the path of the uploaded file
         self.file_label = LabelHelper.create_label(
@@ -125,14 +118,13 @@ class DataViewer(QWidget):
             font=("Arial",10)
         )
         self.file_label.setVisible(False)
-        self.first_step_layout.addWidget(self.file_label)
 
         # Table to display data
         self.table_view = QTableView()
         self.table_view.setFont(QFont("Arial",10))
         self.table_view.setVisible(False)
-        self.first_step_layout.addWidget(self.table_view)
-        self.main_layout.addLayout(self.first_step_layout) 
+        items_setup_first_step = [self.load_button,self.back_button,self.file_label,self.table_view]
+        self.layout.add_widget(self.first_step_layout,items_setup_first_step)
     #-----------------------------------------------------------------------------------------------------------------------
     # SECOND STEP: Nan values
     #-----------------------------------------------------------------------------------------------------------------------
@@ -141,19 +133,17 @@ class DataViewer(QWidget):
         # Button for detecting non-existent values
         self.detect_button = self.button.add_QPushButton("🔍 Detectar","Arial",10,None,None,False)
         self.detect_button.clicked.connect(self.handle_detect_missing_values)
-        self.nan_layout.addWidget(self.detect_button)
 
         # Drop-down menu for pre-processing options
         items = ["🗑️ Eliminar Filas con Valores Inexistentes","📊 Rellenar con la Media","📊 Rellenar con la Mediana",
                 "✏️ Rellenar con un Valor Constante"]
         self.preprocessing_options = self.button.add_QComboBox(items,None,None,False)
-        self.nan_layout.addWidget(self.preprocessing_options)
 
         # Confirmation button to apply pre-processing
         self.apply_button = self.button.add_QPushButton("🟢 Aplicar Preprocesado","Arial Black",8,None,None,False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
-        self.nan_layout.addWidget(self.apply_button)
-        self.main_layout.addLayout(self.nan_layout)
+        widgets = [self.detect_button,self.preprocessing_options,self.apply_button]
+        self.layout.add_widget(self.nan_layout,widgets)
     #-----------------------------------------------------------------------------------------------------------------------
     # THIRD STEP: Options for the linear regresion
     #-----------------------------------------------------------------------------------------------------------------------
@@ -170,9 +160,8 @@ class DataViewer(QWidget):
         self.radio_multiple.setVisible(False)
 
         self.radio_layout = QHBoxLayout()
-        self.radio_layout.addWidget(self.radio_simple)
-        self.radio_layout.addWidget(self.radio_multiple)
-        self.regresion_layout.addLayout(self.radio_layout)
+        radio_button = [self.radio_simple,self.radio_multiple]
+        self.layout.add_widget(self.radio_layout,radio_button)
 
         # Column selector (features)
         self.feature_label = QLabel("Columnas de Entrada (Features)")
@@ -180,8 +169,6 @@ class DataViewer(QWidget):
         self.feature_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Por defecto, solo una selección (regresión simple)
         self.feature_selector.setVisible(False)  
         self.feature_label.setVisible(False)
-        self.regresion_layout.addWidget(self.feature_label)
-        self.regresion_layout.addWidget(self.feature_selector)
 
         # Simple selector for the output column (target)
         self.target_label = QLabel("Columnas de Salida (Target)")
@@ -189,23 +176,24 @@ class DataViewer(QWidget):
         self.target_selector.setSelectionMode(QAbstractItemView.SingleSelection)  # Permitir selección unica para la salida
         self.target_selector.setVisible(False) 
         self.target_label.setVisible(False)
-        self.regresion_layout.addWidget(self.target_label)
-        self.regresion_layout.addWidget(self.target_selector)
 
         # Confirmation button
-        self.confirm_button = self.button.add_QPushButton("✅ Confirmar selección","Arial Black",10,None,None,False)
-        self.button.set_StyleSheet(self.confirm_button,"lightgreen","lightblack","5px")
+        self.confirm_button = self.button.add_QPushButton("✅ Confirmar selección","Arial Black",10,None,None,False,
+                                                          background_color="lightgreen",color="lightblack",padding="5px")
         self.button.set_QPushButton_hoverStyle(self.confirm_button,"green","white")
         self.confirm_button.clicked.connect(self.confirm_selection)
-        self.regresion_layout.addWidget(self.confirm_button)
 
         # Create Regression Model Button
-        self.create_model_button = self.button.add_QPushButton("📈 Crear Modelo de Regresión","Arial Black",10,None,None,False)
-        self.button.set_StyleSheet(self.create_model_button,"lightblue","lightblack","10px")
+        self.create_model_button = self.button.add_QPushButton("📈 Crear Modelo de Regresión","Arial Black",10,None,None,False,
+                                                               background_color="lightblue",color="lightblack",padding="10px")
         self.button.set_QPushButton_hoverStyle(self.create_model_button,"blue","white")  
         self.create_model_button.clicked.connect(self.show_results)
-        self.regresion_layout.addWidget(self.create_model_button)
-        self.main_layout.addLayout(self.regresion_layout)
+
+        widgets = [self.radio_layout,self.feature_label,self.feature_selector,
+                   self.target_label,self.target_selector,self.confirm_button,
+                   self.create_model_button
+        ]
+        self.layout.add_widget(self.regresion_layout,widgets)
     #-----------------------------------------------------------------------------------------------------------------------
     # Next and Back Buttons:
     #-----------------------------------------------------------------------------------------------------------------------
@@ -217,7 +205,6 @@ class DataViewer(QWidget):
         self.return_button.setVisible(False)
         self.back_layout.addWidget(self.return_button)
         self.back_layout.setAlignment(Qt.AlignLeft)                
-        self.NBlayout.addLayout(self.back_layout)
 
         # Next Button
         self.next_layout = QVBoxLayout()
@@ -227,17 +214,25 @@ class DataViewer(QWidget):
         self.next_button.setEnabled(False)
         self.next_layout.addWidget(self.next_button)
         self.next_layout.setAlignment(Qt.AlignRight)
-        self.NBlayout.addLayout(self.next_layout)
 
-    def finalize_layout(self):
+        nav_buttons = [self.back_layout,self.next_layout]
+        self.layout.add_widget(self.NBlayout,nav_buttons)
+
         # Configurar alineación para los botones "Next" y "Back"
         self.NBlayout.setAlignment(Qt.AlignBottom)
 
-        # Añadir el diseño de navegación (Next y Back) al diseño principal
-        self.main_layout.addLayout(self.NBlayout)
+    def finalize_layout(self):
+        
+
+        layouts = [self.welcome_window,self.first_step_layout,self.nan_layout,
+                    self.regresion_layout,self.NBlayout
+        ]
+
+        self.layout.add_widget(self.main_layout,layouts)
 
         # Añadir espaciadores y finalizar la estructura de la ventana
-        self.spacer_layout.addLayout(self.main_layout)
+        items_spacer_layout = [self.steps_layout,self.layout_separator,self.main_layout]
+        self.layout.add_widget(self.spacer_layout,items_spacer_layout)
         self.setLayout(self.spacer_layout)
 
         # Configurar las propiedades básicas de la ventana

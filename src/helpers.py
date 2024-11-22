@@ -130,6 +130,9 @@ class ButtonHelper:
         """
         button = QPushButton(text)
         button.setFont(QFont(font_type, font_size))
+        self.background_color = background_color
+        self.color = color
+        self.padding = padding
 
         # Set size
         if height is not None or width is not None:
@@ -217,7 +220,7 @@ class ButtonHelper:
 
 
 class LayoutHelper:
-    def layout_add_widget(self, layout, widgets: list):
+    def add_widget(self, layout, widgets: list):
         """
         Adds widgets into a layout.
         """
@@ -236,7 +239,7 @@ class LayoutHelper:
             else:
                 QMessageBox.critical(None, "Error", "You are trying to add an undefined item")
 
-    def layout_add_separator(self, type: str, width: int, visibility: bool):
+    def add_separator(self, type: str, width: int, visibility: bool):
         """
         Adds a separator (vertical or horizontal) to the layout.
         """
