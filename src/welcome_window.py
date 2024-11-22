@@ -41,7 +41,8 @@ class WelcomeWindow(QWidget):
             parent=self,
             text="¡Hello!",
             font=("Arial", 25),
-            bold=True
+            bold=True,
+            visible=True
         )
 
         self.welcome_message = LabelHelper.create_label(
@@ -52,14 +53,16 @@ class WelcomeWindow(QWidget):
                     regression based on them
                     </div>""",
             font=("Arial", 18),
-            bold=False
+            bold=False,
+            visible=True
         )
 
         # Additional label to indicate that the user should click the button.
         self.start_label = LabelHelper.create_label(
             parent=self,
             text="Click here to start\n👇",
-            font=("Arial", 12)
+            font=("Arial", 12),
+            visible=True
         )
 
         # Add top and bottom spacers with addStretch().
