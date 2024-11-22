@@ -18,9 +18,12 @@ def detect_missing_values(viewer):
         viewer.missing_data = viewer.df.isnull().sum()
         nan_values = viewer.missing_data[viewer.missing_data > 0]
         if viewer.missing_data.sum() != 0:
+            viewer.empty_values = True
             QMessageBox.warning(viewer,"Warning","There were empty values detected")
             viewer.nan_label.setText(f"¡{nan_values[0]} empty values were detected!")
             viewer.nan_values.setText(f"{nan_values.to_string()}")
+        else:
+            viewer.empty_values = False
 
 def remove_missing_values(viewer):
     """

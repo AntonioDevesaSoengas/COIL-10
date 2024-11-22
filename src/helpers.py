@@ -57,7 +57,8 @@ class LabelHelper:
 
     @staticmethod
     def edit_label(label, text=None, font=None, bold=False, italic=None,
-                   html=None, alignment=None, background_color="transparent", word_wrap=None,padding="0px"):
+                   html=None, alignment=None, background_color="transparent", 
+                   word_wrap=None,padding="0px",visible=True):
         """
         Edits the properties of an existing QLabel.
 
@@ -107,6 +108,8 @@ class LabelHelper:
             style += f"padding: {padding}"
         if style:
             label.setStyleSheet(style)
+
+        label.setVisible(visible)
 
         return label
 

@@ -22,6 +22,7 @@ class DataViewer(QWidget):
         self.last_file_path = None
         self.columnas_entrada = []
         self.columna_salida = []
+        self.empty_values = False
         self.data_table = None
         self.move = 1
         self.initUI()
@@ -97,9 +98,9 @@ class DataViewer(QWidget):
         # Ocultar el diseño de pasos completo
         self.layout.layout_visibility(True, False, self.steps_layout)
 
-        #-----------------------------------------------------------------------------------------------------------------------
-        # FIRST STEP: Open file and display data
-        #-----------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
+    # FIRST STEP: Open file and display data
+    #-------------------------------------------------------------------------
     def setup_first_step(self):
         self.first_step_layout = QVBoxLayout()
         # Botón para cargar archivo
@@ -130,9 +131,9 @@ class DataViewer(QWidget):
         self.table_view.setVisible(False)
         items_setup_first_step = [self.load_button,self.back_button,self.file_label,self.table_view]
         self.layout.add_widget(self.first_step_layout,items_setup_first_step)
-    #-----------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     # SECOND STEP: Nan values
-    #-----------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     def setup_nan_step(self):
         self.nan_layout = QVBoxLayout()
 
@@ -164,9 +165,9 @@ class DataViewer(QWidget):
         self.apply_button.clicked.connect(self.confirm_preprocessing)
         widgets = [self.sep,self.nan_label,self.nan_values,self.separator,self.preprocessing_options,self.apply_button]
         self.layout.add_widget(self.nan_layout,widgets)
-    #-----------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     # THIRD STEP: Options for the linear regresion
-    #-----------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     def setup_regression_step(self):
         self.regresion_layout = QVBoxLayout()
         # Radio buttons to select the type of regression
@@ -214,9 +215,9 @@ class DataViewer(QWidget):
                    self.create_model_button
         ]
         self.layout.add_widget(self.regresion_layout,widgets)
-    #-----------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     # Next and Back Buttons:
-    #-----------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     #Return Button
     def setup_navigation_buttons(self):
         self.back_layout = QVBoxLayout()
@@ -362,12 +363,6 @@ class DataViewer(QWidget):
             self.data_table.clear()
             self.load_data()
 
-    # Preprocessing function to detect Non-existent Values
-    def handle_detect_missing_values(self):
-        if self.df is not None:
-            message = detect_missing_values(self.df)
-            QMessageBox.information(self, "Detección de Valores Inexistentes", message)
-
     # Apply the selected pre-processing option in the ComboBox
     def confirm_preprocessing(self):  
         option = self.preprocessing_options.currentText()
@@ -402,7 +397,7 @@ class DataViewer(QWidget):
             # Error Message
             QMessageBox.critical(self, "Error", f"Ocurrió un error al crear el modelo: {str(e)}")
 
-    #---------------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------
     # Program Execution
     def layout_visibility(self, sublayouts: bool, visibility: bool, layout):
         """
@@ -431,12 +426,18 @@ class DataViewer(QWidget):
 
     def next(self):
         if self.move < 3:
-            self.move += 1
+            if self.empty_values == True:
+                self.move += 1
+            else:
+                self.move += 2
             self.drive_through()
                         
     def back(self):
         if self.move > 1:
-            self.move -= 1
+            if self.empty_values == True:
+                self.move -= 1
+            else:
+                self.move -= 2
             self.drive_through()
             
     def drive_through(self):
@@ -469,25 +470,49 @@ class DataViewer(QWidget):
             self.steps_guide()
             self.layout_visibility(True, True, self.regresion_layout)
             self.next_button.setEnabled(False)
+            self.return_button.setEnabled(True)
 
     def steps_guide(self):
         text1 = "1. Load dataset"
         text2 = "2. Delete empty values"
         text3 = "3. Create linear regression model"
         if self.move == 1:
-            self.label.edit_label(self.first_step,text=text1,
-            background_color="lightgreen",bold=True,padding="5px"
+            self.label.edit_label(self.first_step,
+            text=text1,
+            background_color="lightgreen",
+            bold=True,
+            padding="5px"
             )
+            self.label.edit_label(self.second_step,text="")
+            self.label.edit_label(self.third_step,text="")
 
         elif self.move == 2:
-            self.label.edit_label(self.second_step,text=text2,
-            background_color="lightgreen",bold=True,padding="5px"
+            self.label.edit_label(self.second_step,
+            text=text2,
+            background_color="lightgreen",
+            bold=True,
+            padding="5px",
             )
             self.label.edit_label(self.first_step,text1)
+            self.label.edit_label(self.third_step,text="")
 
         else:
-            self.label.edit_label(self.third_step,text=text3,
-            background_color="lightgreen",bold=True,padding="5px"
-            )
+            if self.empty_values == True:
+                self.label.edit_label(self.third_step,
+                text=text3,
+                background_color="lightgreen",
+                bold=True,
+                padding="5px"
+                )
+                self.label.edit_label(self.second_step,text2)
+            else:
+                self.label.edit_label(self.third_step,
+                text="2. Create linear regression model",
+                background_color="lightgreen",
+                bold=True,
+                padding="5px"
+                )
+                self.second_step.setVisible(False)
             self.label.edit_label(self.first_step,text1)
-            self.label.edit_label(self.second_step,text2)
+            
+    #-------------------------------------------------------------------------
