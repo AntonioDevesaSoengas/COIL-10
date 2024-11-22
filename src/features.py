@@ -14,6 +14,7 @@ from table import Table
 from buttons import Button
 from helpers import LabelHelper
 from welcome_window import WelcomeWindow
+from layouts import Layout
 
 class DataViewer(QWidget):
     def __init__(self):
@@ -32,6 +33,7 @@ class DataViewer(QWidget):
         self.spacer = QSpacerItem(0, 0)
         self.NBlayout = QHBoxLayout()
         self.button = Button()
+        self.layout = Layout()
         self.setup_welcome_window()
         self.setup_steps_guide()
         self.setup_first_step()
@@ -51,9 +53,13 @@ class DataViewer(QWidget):
         self.steps_layout = QVBoxLayout()
         self.steps_label = LabelHelper.create_label(
             parent=self,
-            text="STEPS",
+            text="STEPS:",
             alignment=Qt.AlignLeft,
             bold=True
+        )
+
+        self.steps_separator = self.layout.add_separator("horizontal",None,
+            False
         )
 
         self.first_step = LabelHelper.create_label(
@@ -77,11 +83,17 @@ class DataViewer(QWidget):
             italic=True
         )
 
+        self.layout_separator = self.layout.add_separator("vertical",None,
+            False
+        )
+
         self.steps_layout.addWidget(self.steps_label)
+        self.steps_layout.addWidget(self.steps_separator)
         self.steps_layout.addWidget(self.first_step)
         self.steps_layout.addWidget(self.second_step)
         self.steps_layout.addWidget(self.third_step)
         self.spacer_layout.addLayout(self.steps_layout)
+        self.spacer_layout.addWidget(self.layout_separator)
         self.steps_layout.setAlignment(Qt.AlignTop)
 
         # Ocultar el diseño de pasos completo
@@ -400,6 +412,7 @@ class DataViewer(QWidget):
         """Oculta la ventana de bienvenida y muestra el siguiente paso."""
         self.welcome_window.setVisible(False)
         self.layout_visibility(True,True,self.steps_layout)
+        self.layout_separator.setVisible(True)
         self.drive_through()
 
     def next(self):
