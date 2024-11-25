@@ -62,7 +62,7 @@ class LabelHelper:
     @staticmethod
     def edit_label(label, text=None, font=None, bold=False, italic=None,
                    html=None, alignment=None, background_color="transparent", 
-                   word_wrap=None,padding="0px",visible=True):
+                   word_wrap=None,padding="0px",visible=None,color="black"):
         """
         Edits the properties of an existing QLabel.
 
@@ -102,18 +102,21 @@ class LabelHelper:
             label.setWordWrap(word_wrap)
 
         style = ""
-        if background_color:
+        if color and not html:
+            style += f"color:{color};"
+        if background_color and not html:
             style += f"background-color: {background_color};"
         if bold and not html:
             style += "font-weight: bold;"
         if italic and not html:
             style += "font-style: italic;"
         if padding and not html:
-            style += f"padding: {padding}"
+            style += f"padding: {padding};"
         if style:
             label.setStyleSheet(style)
 
-        label.setVisible(visible)
+        if visible:
+            label.setVisible(visible)
 
         return label
 
@@ -261,6 +264,15 @@ class LayoutHelper:
         separator.setVisible(visibility)
         separator.setStyleSheet(f"color:{color};")
         return separator
+
+    def edit_separator(self, separator,width=None,visibility=None,color=None):
+        if width:
+            separator.setLineWidth(width)
+        if visibility:
+            separator.setVisible(visibility)
+        if color:
+            separator.setStyleSheet(f"color:{color};")
+
 
     def layout_visibility(self, sublayouts: bool, visibility: bool, layout):
         """
