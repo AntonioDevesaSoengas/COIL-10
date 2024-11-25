@@ -1,7 +1,7 @@
 # Third-party library imports
 from PyQt5.QtWidgets import QMessageBox, QInputDialog
 from sklearn.impute import SimpleImputer
-
+from helpers import LabelHelper,LayoutHelper
 
 def detect_missing_values(viewer):
     """
@@ -18,12 +18,24 @@ def detect_missing_values(viewer):
         viewer.missing_data = viewer.df.isnull().sum()
         nan_values = viewer.missing_data[viewer.missing_data > 0]
         if viewer.missing_data.sum() != 0:
+            layout = LayoutHelper()
             viewer.empty_values = True
+            viewer.nan_data = True
             QMessageBox.warning(viewer,"Warning","There were empty values detected")
-            viewer.nan_label.setText(f"¡{nan_values[0]} empty values were detected!")
-            viewer.nan_values.setText(f"{nan_values.to_string()}")
+            layout.edit_separator(viewer.sep,color="red")
+            show_missing_values(viewer,nan_values)
+            layout.edit_separator(viewer.separator,color="red")
+            viewer.preprocessing_options.setCurrentIndex(0)
+            viewer.preprocessing_options.setEnabled(True)
         else:
             viewer.empty_values = False
+
+def show_missing_values(viewer,nan_values):
+    label = LabelHelper()
+    label.edit_label(viewer.nan_label,color="red")
+    viewer.nan_label.setText(f"¡{nan_values[0]} empty values were detected!")
+    viewer.nan_values.setText(f"{nan_values.to_string()}")
+    viewer.nan_layout.insertWidget(2,viewer.nan_values)
 
 def remove_missing_values(viewer):
     """

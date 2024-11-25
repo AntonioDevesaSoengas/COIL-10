@@ -24,6 +24,7 @@ class DataViewer(QWidget):
         self.columna_salida = []
         self.empty_values = False
         self.data_table = None
+        self.nan_solved = False
         self.move = 1
         self.initUI()
 
@@ -137,15 +138,12 @@ class DataViewer(QWidget):
     def setup_nan_step(self):
         self.nan_layout = QVBoxLayout()
 
-        self.sep = self.layout.add_separator("horizontal",None,False,
-            color="red"
-            )
+        self.sep = self.layout.add_separator("horizontal",None,False,)
 
         self.nan_label = self.label.create_label(
             parent=self,
             font=("Arial",12),
             alignment=Qt.AlignLeft,
-            color="red",
             bold=True,
             )
 
@@ -156,8 +154,7 @@ class DataViewer(QWidget):
         )
 
         self.separator = self.layout.add_separator("horizontal",
-        None,False,color="red"
-        )
+        None,False)
 
         # Drop-down menu for pre-processing options
         self.option_label = self.label.create_label(self,"Choose an option for preprocessing nan values:",font=("Arial",8),alignment=Qt.AlignLeft)
@@ -169,7 +166,7 @@ class DataViewer(QWidget):
         # Confirmation button to apply pre-processing
         self.apply_button = self.button.add_QPushButton("🟢 Aplicar Preprocesado","Arial Black",8,None,None,False,enabled=False)
         self.apply_button.clicked.connect(self.confirm_preprocessing)
-        widgets = [self.sep,self.nan_label,self.nan_values,self.separator,self.option_label,self.preprocessing_options,self.apply_button]
+        widgets = [self.sep,self.nan_label,self.separator,self.option_label,self.preprocessing_options,self.apply_button]
         self.layout.add_widget(self.nan_layout,widgets)
     #-------------------------------------------------------------------------
     # THIRD STEP: Options for the linear regresion
@@ -380,7 +377,6 @@ class DataViewer(QWidget):
         if not option:
             QMessageBox.warning(self, "Advertencia", "Debes seleccionar una opción de preprocesado antes de confirmar.")
             return
-        
         try:
             if option == "🗑️ Eliminar Filas con Valores Inexistentes":
                 remove_missing_values(self)
@@ -391,10 +387,22 @@ class DataViewer(QWidget):
             elif option == "✏️ Rellenar con un Valor Constante":
                 fill_with_constant(self)
 
+            self.nan_data = False
+            self.next_button.setEnabled(True)
+            self.nan_solved = True
+            self.label.edit_label(self.nan_label,text="There are no more empty values :)",color="green")
+            self.layout.edit_separator(self.sep,color="green")
+            self.layout.edit_separator(self.separator,color="green")
+            self.nan_values.setVisible(False)
+            self.nan_layout.removeWidget(self.nan_values)
+            self.preprocessing_options.setEnabled(False)
+            self.apply_button.setEnabled(False)
+
             # Redisplay the table after preprocessing
             self.display_data_in_table(self.df)  # Make sure the table is updated with the new content
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al aplicar el preprocesado: {str(e)}")
+        
 
     def show_results(self):
         from results_window import ResultWindow
@@ -471,11 +479,14 @@ class DataViewer(QWidget):
             self.layout_visibility(True,True, self.nan_layout)
             self.table_view.setVisible(True)
             self.return_button.setEnabled(True)
-            self.next_button.setEnabled(True)
 
             # Asegura que el botón de cargar datos siga oculto
             self.back_button.setVisible(False)
-            self.file_label.setVisible(True)
+            self.file_label.setVisible(False)
+            if self.nan_solved == False:
+                self.next_button.setEnabled(False)
+            else:
+                self.next_button.setEnabled(True)
         
         elif self.move == 3:  # Paso 3: Crear modelo
             self.steps_guide()
@@ -498,6 +509,10 @@ class DataViewer(QWidget):
             self.label.edit_label(self.third_step,text="")
 
         elif self.move == 2:
+            if self.nan_data == True:
+                self.next_button.setEnabled(False)
+            else:
+                self.next_button.setEnabled(True)
             self.label.edit_label(self.second_step,
             text=text2,
             background_color="lightgreen",
