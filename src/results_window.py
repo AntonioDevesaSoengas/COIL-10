@@ -122,10 +122,7 @@ class ResultWindow(QWidget):
         Maneja el evento de clic del botón "Guardar Modelo".
         """
         description = self.text_box.toPlainText()
-        if not description:
-            QMessageBox.warning(self, "Advertencia", "Por favor, escriba una descripción para el modelo.")
-            return
-
+        
         # Crear e invocar ModelSaver
         model_saver = ModelSaver(
             model=self.model,
