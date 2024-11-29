@@ -24,8 +24,15 @@ class ModelSaver:
             self.save_model(file_path)
 
     def save_model(self, file_path):
-        """Save the model to the specified file path."""
+        """
+        Guarda el modelo en la ruta especificada.
+        Si no se proporciona una descripción, usa un valor por defecto.
+        """
         try:
+            # Usa una descripción por defecto si el campo está vacío
+            description = self.description if self.description.strip() else "No description provided."
+
+            # Datos del modelo a guardar
             model_data = {
                 'model': self.model,
                 'formula': self.formula,
@@ -33,10 +40,12 @@ class ModelSaver:
                 'mse': self.mse,
                 'input_columns': self.input_columns,
                 'output_column': self.output_column,
-                'description': self.description,
+                'description': description,
                 'graph': self.graph, 
             }
+            # Guardar el modelo
             joblib.dump(model_data, file_path)
             QMessageBox.information(None, "Éxito", "Modelo guardado exitosamente.")
         except Exception as e:
             QMessageBox.critical(None, "Error", f"No se pudo guardar el modelo: {str(e)}")
+
