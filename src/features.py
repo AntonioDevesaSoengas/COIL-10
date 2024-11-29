@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
                             QWidget, QVBoxLayout, QHBoxLayout,
                             QSpacerItem, QLabel, QTableView, QRadioButton,
                             QListWidget, QAbstractItemView, QPushButton, 
-                            QFileDialog, QHeaderView
+                            QFileDialog, QHeaderView, QTextEdit
                             )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
@@ -41,6 +41,7 @@ class DataViewer(QWidget):
         self.setup_first_step()
         self.setup_nan_step()
         self.setup_regression_step()
+        self.setup_model_details_step()  
         self.setup_navigation_buttons()
         self.finalize_layout()
 
@@ -104,21 +105,30 @@ class DataViewer(QWidget):
     #-------------------------------------------------------------------------
     def setup_first_step(self):
         self.first_step_layout = QVBoxLayout()
+
         # Botón para cargar archivo
         self.load_button = self.button.add_QPushButton('📂 Cargar Dataset',
             "Arial Black",12,243,None,False,
             background_color="green",color="white",padding="10px"
-            )
+        )
         self.button.set_QPushButton_hoverStyle(self.load_button,"darkgreen","lightgrey")
         self.load_button.clicked.connect(self.open_file_dialog)
 
-        # Button to go back and choose another file
+        # Botón para cargar modelo
+        self.load_model_button = self.button.add_QPushButton('📦 Cargar Modelo',
+            "Arial Black",12,243,None,False,
+            background_color="blue",color="white",padding="10px"
+        )
+        self.button.set_QPushButton_hoverStyle(self.load_model_button,"darkblue","lightgrey")
+        self.load_model_button.clicked.connect(self.open_model_dialog)
+
+        # Botón para elegir otro archivo
         self.back_button = self.button.add_QPushButton("🔄️ Elegir otro archivo","Arial Black",12,262,None,False,
                                                        background_color="orange",color="white",padding="10px")
         self.button.set_QPushButton_hoverStyle(self.back_button,"darkorange","lightgrey")
         self.back_button.clicked.connect(self.clear_table_and_choose_file)
 
-        # Label to display the path of the uploaded file
+        # Etiqueta para mostrar la ruta del archivo cargado
         self.file_label = LabelHelper.create_label(
             parent=self,
             text="📂 Ruta del archivo cargado:",
@@ -126,12 +136,14 @@ class DataViewer(QWidget):
         )
         self.file_label.setVisible(False)
 
-        # Table to display data
+        # Tabla para mostrar los datos
         self.table_view = QTableView()
         self.table_view.setFont(QFont("Arial",10))
         self.table_view.setVisible(False)
-        items_setup_first_step = [self.load_button,self.back_button,self.file_label,self.table_view]
-        self.layout.add_widget(self.first_step_layout,items_setup_first_step)
+
+        # Añadir los widgets al layout del primer paso
+        items_setup_first_step = [self.load_button, self.load_model_button, self.back_button, self.file_label, self.table_view]
+        self.layout.add_widget(self.first_step_layout, items_setup_first_step)
     #-------------------------------------------------------------------------
     # SECOND STEP: Nan values
     #-------------------------------------------------------------------------
@@ -218,6 +230,52 @@ class DataViewer(QWidget):
                    self.create_model_button
         ]
         self.layout.add_widget(self.regresion_layout,widgets)
+
+    # -------------------------------------------------------------------------
+    # Display Model Details
+    # -------------------------------------------------------------------------
+    def setup_model_details_step(self):
+        """
+        Sets up the UI components to display the details of a loaded regression model.
+        """
+        self.model_details_layout = QVBoxLayout()
+
+        # Label for displaying the formula
+        self.formula_label = LabelHelper.create_label(
+            parent=self,
+            text="Fórmula del Modelo: ",
+            font=("Arial", 10),
+            alignment=Qt.AlignLeft
+        )
+
+        # Label for displaying MSE
+        self.mse_label = LabelHelper.create_label(
+            parent=self,
+            text="MSE: ",
+            font=("Arial", 10),
+            alignment=Qt.AlignLeft
+        )
+
+        # Label for displaying R²
+        self.r_squared_label = LabelHelper.create_label(
+            parent=self,
+            text="R²: ",
+            font=("Arial", 10),
+            alignment=Qt.AlignLeft
+        )
+
+        # Text box for model description
+        self.description_text = QTextEdit()
+        self.description_text.setPlaceholderText("Descripción del modelo cargado...")
+        self.description_text.setReadOnly(True)
+
+        # Add widgets to the layout
+        widgets = [self.formula_label, self.mse_label, self.r_squared_label, self.description_text]
+        self.layout.add_widget(self.model_details_layout, widgets)
+
+        # Make the layout initially invisible
+        self.layout_visibility(True, False, self.model_details_layout)
+
     #-------------------------------------------------------------------------
     # Next and Back Buttons:
     #-------------------------------------------------------------------------
@@ -283,6 +341,26 @@ class DataViewer(QWidget):
                 self.file_label.setText(f'📂 Archivo cargado: {file_path}')
                 self.load_data(file_path)
 
+    
+    def open_model_dialog(self):
+        """
+        Open a file dialog to load a model and display its details in a new window.
+        """
+        from model_loader import ModelLoader
+        from model_window import ModelWindow
+
+        # Create an instance of ModelLoader
+        model_loader = ModelLoader(self)
+        model_data = model_loader.load_model_dialog()  # Load model data
+
+        if model_data:  # If model data is successfully loaded
+            try:
+                # Open a new window to display the model details
+                self.model_window = ModelWindow(model_data)
+                self.model_window.show()
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Ocurrió un error al mostrar los detalles del modelo: {str(e)}")
+
     def load_data(self, file_path):
         try:
             self.df = import_data(file_path)
@@ -300,6 +378,45 @@ class DataViewer(QWidget):
             QMessageBox.critical(self, "Error", "El archivo CSV está corrupto o tiene un formato inválido.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo cargar el archivo: {str(e)}")
+
+    
+    def display_loaded_model(self, model_data):
+        """
+        Updates the UI to display details of a loaded model, including its formula,
+        metrics, and description. It also hides the irrelevant sections of the interface.
+        """
+        # Ensure the regression step layout is displayed
+        self.layout_visibility(True, False, self.main_layout)
+        self.layout_visibility(True, True, self.model_details_layout)
+
+        # Update labels and metrics
+        self.formula_label.setText(f"Fórmula: {model_data['formula']}")
+        self.mse_label.setText(f"MSE: {model_data.get('mse', 'N/A')}")
+        self.r_squared_label.setText(f"R²: {model_data.get('r_squared', 'N/A')}")
+        self.description_text.setText(model_data.get('description', 'Sin descripción disponible.'))
+
+        # Hide irrelevant sections
+        self.load_button.setVisible(False)
+        self.load_model_button.setVisible(False)
+        self.back_button.setVisible(False)
+        self.preprocessing_options.setVisible(False)
+        self.apply_button.setVisible(False)
+        self.feature_selector.setVisible(False)
+        self.target_selector.setVisible(False)
+        self.confirm_button.setVisible(False)
+        self.create_model_button.setVisible(False)
+
+        # Adjust steps guide
+        self.steps_guide()
+        self.label.edit_label(
+            self.third_step,
+            text="Modelo cargado correctamente.",
+            background_color="lightgreen",
+            bold=True,
+            padding="5px",
+        )
+
+
 
     def display_data_in_table(self, data):
         self.data_table = Table(self.df)
@@ -343,7 +460,7 @@ class DataViewer(QWidget):
             self.feature_selector.setSelectionMode(QAbstractItemView.SingleSelection)
         else:
             # Multiple Regression: Multiple Choice Allowed
-            self.feature_selector.setSelectionMode(QAbstractItemView.MultiSelection)
+            self.feature_selector.setSelectionMode(QAbstractItemView.MultiSelection) 
 
     def confirm_selection(self):
         # Get feature selections
@@ -495,7 +612,7 @@ class DataViewer(QWidget):
             self.return_button.setEnabled(True)
 
     def steps_guide(self):
-        text1 = "1. Load dataset"
+        text1 = "1. Load dataset or Load model"
         text2 = "2. Delete empty values"
         text3 = "3. Create linear regression model"
         if self.move == 1:
