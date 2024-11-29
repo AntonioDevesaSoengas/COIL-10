@@ -1,5 +1,8 @@
 import joblib
 from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox
+from PyQt5.QtCore import QTimer
+from model_window import ModelWindow
+
 
 class ModelLoader(QWidget):
     def __init__(self, viewer):
@@ -19,8 +22,27 @@ class ModelLoader(QWidget):
     def load_model(self, file_path):
         """Load the model from the specified file path."""
         try:
-            model_data = joblib.load(file_path)  # Load model data
-            return model_data  # Return loaded model data
+            model_data = joblib.load(file_path)
+
+            # Mostrar el mensaje de confirmación primero
+            msg_box = QMessageBox(self)
+            msg_box.setWindowTitle("Éxito")
+            msg_box.setText("Modelo cargado exitosamente.")
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.exec_()  # Mostramos el mensaje primero
+
+            # Retrasar ligeramente la apertura de la ventana del modelo
+            QTimer.singleShot(100, lambda: self.open_model_window(model_data))
+
         except Exception as e:
             QMessageBox.critical(self.viewer, "Error", f"No se pudo cargar el modelo: {str(e)}")
-            return None
+
+    def open_model_window(self, model_data):
+        """Abre la ventana del modelo."""
+        if hasattr(self.viewer, 'open_windows'):
+            self.viewer.open_windows.append(ModelWindow(model_data))
+        else:
+            self.viewer.open_windows = [ModelWindow(model_data)]
+
+        # Mostrar la ventana del modelo
+        self.viewer.open_windows[-1].show()
