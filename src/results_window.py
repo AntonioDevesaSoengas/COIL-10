@@ -17,6 +17,7 @@ class ResultWindow(QWidget):
         formula (str): Fórmula de regresión generada.
         mse (float): Error cuadrático medio del modelo.
         r_squared (float): Coeficiente de determinación del modelo.
+        graph (matplotlib.figure.Figure): Gráfica del modelo.
     """
     def __init__(self, data, columnas_entrada, columna_salida):
         super().__init__()
@@ -27,6 +28,7 @@ class ResultWindow(QWidget):
         self.formula = None
         self.mse = None
         self.r_squared = None
+        self.graph = None  # Almacena la gráfica generada
         self.initUI()
 
     def initUI(self):
@@ -38,7 +40,6 @@ class ResultWindow(QWidget):
         # Cuadro de texto para la descripción del modelo
         self.text_box = QTextEdit()
         self.text_box.setPlaceholderText("Escriba aquí su descripción...")
-
 
         # Grupo para la gráfica
         graph_group = QGroupBox("Gráfica de Regresión")
@@ -105,8 +106,8 @@ class ResultWindow(QWidget):
 
         # Generar y mostrar la gráfica
         if len(self.columnas_entrada) == 1:
-            fig = plot_regression_graph(y_test, predictions)
-            self.canvas = FigureCanvas(fig)
+            self.graph = plot_regression_graph(y_test, predictions)
+            self.canvas = FigureCanvas(self.graph)
             self.graph_layout.addWidget(self.canvas)
         else:
             # Notificar al usuario que no se puede mostrar la gráfica
@@ -133,6 +134,7 @@ class ResultWindow(QWidget):
             mse=self.mse,
             input_columns=self.columnas_entrada,
             output_column=self.columna_salida,
-            description=description
+            description=description,
+            graph=self.graph  # Pasar la gráfica generada
         )
         model_saver.save_model_dialog()
