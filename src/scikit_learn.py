@@ -56,8 +56,7 @@ def linear_regression(data, input_columns, output_columns):
     for i, coef in enumerate(coefficients):
         formula += f" + ({coef:.2f}) * {input_columns[i]}"
 
-    return formula, mse, r2, x_test, y_test, predictions
-
+    return formula, mse, r2, x_test, y_test, predictions, model
 
 def plot_regression_graph(y_test, predictions):
     """
