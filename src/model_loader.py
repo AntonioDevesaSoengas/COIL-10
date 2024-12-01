@@ -39,10 +39,15 @@ class ModelLoader(QWidget):
 
     def open_model_window(self, model_data):
         """Abre la ventana del modelo."""
+        # Obtener las columnas de entrada del modelo cargado
+        columnas_entrada = model_data.get('input_columns', [])  # Cambia 'input_columns' por la clave correcta si es diferente
+
+        # Crear una nueva instancia de ModelWindow pasando ambos argumentos
         if hasattr(self.viewer, 'open_windows'):
-            self.viewer.open_windows.append(ModelWindow(model_data))
+            self.viewer.open_windows.append(ModelWindow(model_data, columnas_entrada))
         else:
-            self.viewer.open_windows = [ModelWindow(model_data)]
+            self.viewer.open_windows = [ModelWindow(model_data, columnas_entrada)]
 
         # Mostrar la ventana del modelo
         self.viewer.open_windows[-1].show()
+
