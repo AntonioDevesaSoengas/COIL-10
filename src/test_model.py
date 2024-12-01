@@ -1,55 +1,72 @@
-import pytest
+# Standard Libraries
 import pickle
-from sklearn.linear_model import LinearRegression
-import numpy as np
 
-# Pruebas para la creación del modelo
+# Third-Party Libraries
+import pytest
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+
 def test_model_creation():
-    # Datos de prueba
+    """
+    Tests the creation of a linear regression model and verifies its coefficients and intercept.
+    """
+    # Test data
     X = np.array([[1], [2], [3]])
     y = np.array([2, 4, 6])
-    
-    # Crear modelo
+
+    # Create model
     model = LinearRegression()
     model.fit(X, y)
-    
-    # Verificar coeficiente e intercepto
+
+    # Verify coefficient and intercept
     assert model.coef_[0] == pytest.approx(2, rel=1e-2)
     assert model.intercept_ == pytest.approx(0, rel=1e-2)
 
+
 def test_model_prediction():
-    # Datos de prueba
+    """
+    Tests the prediction functionality of the linear regression model to ensure accuracy.
+    """
+    # Test data
     X = np.array([[1], [2], [3]])
     y = np.array([2, 4, 6])
-    
-    # Crear modelo
+
+    # Create model
     model = LinearRegression()
     model.fit(X, y)
-    
-    # Verificar predicción
+
+    # Verify prediction
     predictions = model.predict(X)
     assert predictions[0] == pytest.approx(2, rel=1e-2)
     assert predictions[1] == pytest.approx(4, rel=1e-2)
     assert predictions[2] == pytest.approx(6, rel=1e-2)
 
-# Pruebas para guardar y cargar el modelo
+
+# Tests for saving and loading the model
 def test_model_saving_and_loading(tmp_path):
-    # Datos de prueba
+    """
+    Tests the saving and loading functionality of the linear regression model using pickle.
+
+    Args:
+        tmp_path (Path): A temporary directory provided by pytest for file operations.
+    """
+    # Test data
     X = [[1], [2], [3]]
     y = [2, 4, 6]
-    
-    # Crear modelo
+
+    # Create model
     model = LinearRegression()
     model.fit(X, y)
-    
-    # Guardar modelo
+
+    # Save model
     file_path = tmp_path / "model.pkl"
     with open(file_path, 'wb') as f:
         pickle.dump(model, f)
-    
-    # Cargar modelo
+
+    # Load model
     with open(file_path, 'rb') as f:
         loaded_model = pickle.load(f)
-    
-    # Verificar que el modelo cargado funcione correctamente
+
+    # Verify that the loaded model works correctly
     assert loaded_model.predict([[4]])[0] == pytest.approx(8, rel=1e-2)
