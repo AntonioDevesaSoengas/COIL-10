@@ -24,15 +24,15 @@ class ModelWindow(QMainWindow):
 
     Attributes:
         model: The linear regression model.
-        columnas_entrada (list): List of input feature column names.
+        input_columns (list): List of input feature column names.
     """
 
-    def __init__(self, model_data, columnas_entrada):
+    def __init__(self, model_data, input_columns):
         super().__init__()
         self.setWindowTitle("Model Details")
         self.setGeometry(100, 100, 800, 600)
         self.model = model_data.get('model', None)
-        self.columnas_entrada = columnas_entrada
+        self.input_columns = input_columns
 
         # Main layout.
         layout = QVBoxLayout()
@@ -145,12 +145,12 @@ class ModelWindow(QMainWindow):
             input_values = input_text.split(",")  
 
             # Validate that the number of values matches input columns.
-            if len(input_values) != len(self.columnas_entrada):
+            if len(input_values) != len(self.input_columns):
                 self.predicted_value_output.setStyleSheet(
                     "color: red; font-weight: bold;"
                 )  
                 self.predicted_value_output.setText(
-                    f"Error: You must enter exactly {len(self.columnas_entrada)} values separated by commas."
+                    f"Error: You must enter exactly {len(self.input_columns)} values separated by commas."
                 )
                 return
 
@@ -170,7 +170,7 @@ class ModelWindow(QMainWindow):
 
             # Create a DataFrame with input column names.
             input_df = pd.DataFrame(
-                [input_values], columns=self.columnas_entrada
+                [input_values], columns=self.input_columns
             )
 
             # Check if the model exists.

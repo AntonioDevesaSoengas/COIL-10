@@ -1,11 +1,21 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QGroupBox, QMessageBox, QLabel, QPushButton
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QTextEdit, QGroupBox, QMessageBox, QLineEdit
-)
+# Third-party libraries.
 import pandas as pd
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QTextEdit,
+    QGroupBox,
+    QMessageBox,
+    QPushButton,
+    QLineEdit
+)
+from matplotlib.backends.backend_qt5agg import (
+    FigureCanvasQTAgg as FigureCanvas
+)
+
+# Local libraries.
 from scikit_learn import linear_regression, plot_regression_graph
 from model_saver import ModelSaver
 from helpers import LabelHelper, ButtonHelper
@@ -13,34 +23,43 @@ from helpers import LabelHelper, ButtonHelper
 
 class ResultWindow(QWidget):
     """
-    Una clase QWidget para mostrar los resultados de un análisis de regresión lineal.
-    
-    Atributos:
-        data (pd.DataFrame): Dataset utilizado para el análisis de regresión.
-        columnas_entrada (list): Lista de nombres de columnas de entrada.
-        columna_salida (str): Nombre de la columna de salida.
-        model: Modelo de regresión generado.
-        formula (str): Fórmula de regresión generada.
-        mse (float): Error cuadrático medio del modelo.
-        r_squared (float): Coeficiente de determinación del modelo.
-        graph (matplotlib.figure.Figure): Gráfica del modelo.
+    A QWidget class to display the results of a linear regression analysis.
+
+    Attributes:
+        data (pd.DataFrame): Dataset used for regression analysis.
+        input_columns (list): List of input column names.
+        output_column (str): Name of the output column.
+        model: Generated regression model.
+        formula (str): Generated regression formula.
+        mse (float): Mean Squared Error of the model.
+        r_squared (float): Coefficient of determination of the model.
+        graph (matplotlib.figure.Figure): Graph of the model.
     """
-    def __init__(self, data, columnas_entrada, columna_salida):
+
+    def __init__(self, data, input_columns, output_column):
+        """
+        Initialize the ResultWindow with data, input, and output columns.
+
+        Args:
+            data (pd.DataFrame): Dataset used for regression analysis.
+            input_columns (list): List of input column names.
+            output_column (str): Name of the output column.
+        """
         super().__init__()
-        
+
         self.data = data
-        self.columnas_entrada = columnas_entrada
-        self.columna_salida = columna_salida
-        self.model = None  # Modelo de regresión
+        self.input_columns = input_columns
+        self.output_column = output_column
+        self.model = None  # Regression model
         self.formula = None
         self.mse = None
         self.r_squared = None
-        self.graph = None  # Almacena la gráfica generada
+        self.graph = None  # Stores the generated graph
         self.initUI()
 
     def initUI(self):
         """
-        Configura la interfaz de usuario para la ventana de resultados.
+        Configures the user interface for the results window.
         """
         vertical_layout = QVBoxLayout()
         self.button = ButtonHelper()
@@ -48,22 +67,22 @@ class ResultWindow(QWidget):
         # Text.
         self.result_label = LabelHelper.create_label(
             parent=self,
-            text="Descripción de mi modelo:",
+            text="Model Description:",
             font=("Arial", 9),
             alignment=Qt.AlignLeft
         )
 
         # Description text box.
         self.text_box = QTextEdit()
-        self.text_box.setPlaceholderText("Escriba aquí su descripción...")
+        self.text_box.setPlaceholderText("Write your description here...")
 
-        # Grupo para la gráfica
-        graph_group = QGroupBox("Gráfica de Regresión")
+        # Group for the graph.
+        graph_group = QGroupBox("Regression Graph")
         self.graph_layout = QVBoxLayout()
         graph_group.setLayout(self.graph_layout)
 
-        # Grupo para la fórmula y métricas
-        formula_group = QGroupBox("Fórmula del Modelo y Métricas")
+        # Group for the formula and metrics.
+        formula_group = QGroupBox("Model Formula and Metrics")
         formula_layout = QVBoxLayout()
         self.formula_label = LabelHelper.create_label(
             parent=self,
@@ -74,28 +93,41 @@ class ResultWindow(QWidget):
         formula_layout.addWidget(self.formula_label)
         formula_group.setLayout(formula_layout)
 
-        # Box for the value to be entered by user
+        # Input box for user entry.
         self.prediction_input = QLineEdit()
-        self.prediction_input.setPlaceholderText("Introduzca un valor numérico")
-        self.prediction_input.setFixedHeight(30)  # Reducimos el tamaño
+        self.prediction_input.setPlaceholderText("Enter a numeric value")
+        self.prediction_input.setFixedHeight(30)
         self.prediction_input.setStyleSheet("padding: 5px; font-size: 12px;")
-        
-        # Box for the predicted value
+
+        # Output box for predicted value.
         self.predicted_value_output = QLineEdit()
-        self.predicted_value_output.setPlaceholderText("El resultado aparecerá aquí")
-        self.predicted_value_output.setFixedHeight(30)  # Ajustar tamaño
-        self.predicted_value_output.setReadOnly(True)  # Hacer que sea solo lectura
-        self.predicted_value_output.setStyleSheet("padding: 5px; font-size: 12px; color: gray; font-weight: bold;")
-        
-        # Add prediction's button
-        self.predict_button = self.button.add_QPushButton("📊 Prediction",
-        "Arial Black",12,262,None,True,
-        background_color="blue",color="white",padding="10px")
-        self.button.set_QPushButton_hoverStyle(self.predict_button,"darkblue","lightgrey")
+        self.predicted_value_output.setPlaceholderText(
+            "The result will appear here")
+        self.predicted_value_output.setFixedHeight(30)
+        self.predicted_value_output.setReadOnly(True)
+        self.predicted_value_output.setStyleSheet(
+            "padding: 5px; font-size: 12px; color: gray; font-weight: bold;"
+        )
+
+        # Add prediction button.
+        self.predict_button = self.button.add_QPushButton(
+            "📊 Prediction",
+            "Arial Black",
+            12,
+            262,
+            None,
+            True,
+            background_color="blue",
+            color="white",
+            padding="10px"
+        )
+        self.button.set_QPushButton_hoverStyle(
+            self.predict_button, "darkblue", "lightgrey"
+        )
         self.predict_button.clicked.connect(self.handle_prediction)
-        
-        # Botón para guardar el modelo
-        self.save_button = QPushButton("💾 Guardar Modelo")
+
+        # Save model button.
+        self.save_button = QPushButton("💾 Save Model")
         self.save_button.setStyleSheet("""
             QPushButton {
                 color: white;
@@ -115,7 +147,7 @@ class ResultWindow(QWidget):
         self.save_button.setFont(QFont("Arial", 12, QFont.Bold))
         self.save_button.clicked.connect(self.save_model)
 
-        # Añadir componentes al diseño principal
+        # Add components to the main layout.
         vertical_layout.addWidget(self.text_box)
         vertical_layout.addWidget(graph_group)
         vertical_layout.addWidget(formula_group)
@@ -125,105 +157,131 @@ class ResultWindow(QWidget):
         vertical_layout.addWidget(self.save_button)
 
         self.setLayout(vertical_layout)
-        self.setWindowTitle("Resultados")
+        self.setWindowTitle("Results")
         self.setMinimumSize(800, 600)
 
         self.display_results()
 
     def display_results(self):
         """
-        Ejecuta la regresión lineal, muestra la fórmula y las métricas,
-        y genera una gráfica de regresión si es aplicable.
+        Executes linear regression, displays the formula and metrics,
+        and generates a regression graph if applicable.
         """
         # Run regression and get results.
-        formula, mse, r2, x_test, y_test, predictions, model = linear_regression(
-            self.data, self.columnas_entrada, self.columna_salida
+        (
+            formula,
+            mse,
+            r2,
+            x_test,
+            y_test,
+            predictions,
+            model
+        ) = linear_regression(
+            self.data,
+            self.input_columns,
+            self.output_column
         )
-        
+
         # Save model to make predictions
         self.model = model
-        
+
         self.formula = formula
         self.mse = mse
         self.r_squared = r2
 
-        # Mostrar fórmula y métricas
+        # Display formula and metrics.
         self.formula_label.setText(f"{formula}\nMSE: {mse:.2f}\nR^2: {r2:.2f}")
-        
+
         # Generate and display the graph.
-        if len(self.columnas_entrada) == 1:
+        if len(self.input_columns) == 1:
             self.graph = plot_regression_graph(y_test, predictions)
             self.canvas = FigureCanvas(self.graph)
             self.graph_layout.addWidget(self.canvas)
         else:
-            # Notificar al usuario que no se puede mostrar la gráfica
+            # Notify the user that the graph cannot be displayed.
             QMessageBox.warning(
                 self,
-                "Advertencia",
-                "No se puede generar la gráfica porque hay múltiples variables de entrada."
+                "Warning",
+                "Cannot generate the graph because there are multiple inputs."
             )
 
     def save_model(self):
         """
-        Maneja el evento de clic del botón "Guardar Modelo".
+        Handles the click event of the "Save Model" button.
         """
         description = self.text_box.toPlainText()
-        
-        # Crear e invocar ModelSaver
+
+        # Create and invoke ModelSaver.
         model_saver = ModelSaver(
             model=self.model,
             formula=self.formula,
             r_squared=self.r_squared,
             mse=self.mse,
-            input_columns=self.columnas_entrada,
-            output_column=self.columna_salida,
+            input_columns=self.input_columns,
+            output_column=self.output_column,
             description=description,
-            graph=self.graph  # Pasar la gráfica generada
+            graph=self.graph
         )
         model_saver.save_model_dialog()
 
     def handle_prediction(self):
         """
-        Maneja la predicción al hacer clic en el botón de predicción.
+        Handles the prediction when the prediction button is clicked.
         """
         try:
-            # Recuperar los valores ingresados por el usuario desde QLineEdit
-            input_text = self.prediction_input.text()  # Obtiene el texto del QLineEdit
-            input_values = input_text.split(",")  # Divide los valores separados por comas
+            # Retrieve user-entered values from QLineEdit.
+            input_text = self.prediction_input.text()
+            input_values = input_text.split(",")
 
-            # Validar que el número de valores coincida con las columnas de entrada
-            if len(input_values) != len(self.columnas_entrada):  # self.columnas_entrada tiene 3 columnas, por ejemplo
-                self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")  # Mensajes en rojo
-                self.predicted_value_output.setText(
-                    f"Error: Debe ingresar exactamente {len(self.columnas_entrada)} valores separados por comas."
+            # Validate that the number of values matches input columns.
+            if len(input_values) != len(self.input_columns):
+                self.predicted_value_output.setStyleSheet(
+                    "color: red; font-weight: bold;"
                 )
+                error_message = (
+                    f"Error: You must enter exactly {len(self.input_columns)} "
+                    "values separated by commas."
+                )
+                self.predicted_value_output.setText(error_message)
                 return
 
-            # Validar que todos los valores sean numéricos
+            # Validate that all values are numeric.
             try:
                 input_values = [float(value.strip()) for value in input_values]
             except ValueError:
-                self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")  # Mensajes en rojo
-                self.predicted_value_output.setText("Error: Por favor, ingrese solo valores numéricos.")
+                self.predicted_value_output.setStyleSheet(
+                    "color: red; font-weight: bold;"
+                )
+                self.predicted_value_output.setText(
+                    "Error: Please enter only numeric values."
+                )
                 return
 
-            # Crear un DataFrame con los nombres de las columnas de entrada
-            input_df = pd.DataFrame([input_values], columns=self.columnas_entrada)
+            # Create a DataFrame with input column names.
+            input_df = pd.DataFrame([input_values], columns=self.input_columns)
 
-            # Verificar que el modelo existe
+            # Check if the model exists.
             if not hasattr(self, "model") or self.model is None:
-                self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")  # Mensajes en rojo
-                self.predicted_value_output.setText("Error: El modelo no está disponible.")
+                self.predicted_value_output.setStyleSheet(
+                    "color: red; font-weight: bold;"
+                )
+                self.predicted_value_output.setText(
+                    "Error: The model is not available."
+                )
                 return
 
-            # Realizar la predicción
+            # Perform prediction.
             predicted_value = self.model.predict(input_df)[0]
 
-            # Mostrar el resultado en el QLineEdit de salida en verde
-            self.predicted_value_output.setStyleSheet("color: green; font-weight: bold;")  # Mensajes en verde
+            # Display the result in the output QLineEdit in green.
+            self.predicted_value_output.setStyleSheet(
+                "color: green; font-weight: bold;"
+            )
             self.predicted_value_output.setText(f"{predicted_value:.2f}")
 
         except Exception as e:
-            # Mostrar cualquier otro error en el QLineEdit de salida en rojo
-            self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")
+            # Display any other errors in the output QLineEdit in red.
+            self.predicted_value_output.setStyleSheet(
+                "color: red; font-weight: bold;"
+            )
             self.predicted_value_output.setText(f"Error: {str(e)}")
