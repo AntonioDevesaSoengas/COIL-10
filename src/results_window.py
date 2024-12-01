@@ -3,6 +3,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QTextEdit, QGroupBox, QMessageBox, QLineEdit
 )
+import pandas as pd
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from scikit_learn import linear_regression, plot_regression_graph
@@ -204,13 +205,16 @@ class ResultWindow(QWidget):
                 self.predicted_value_output.setText("Error: Por favor, ingrese solo valores numéricos.")
                 return
 
+            # Crear un DataFrame con los nombres de las columnas de entrada
+            input_df = pd.DataFrame([input_values], columns=self.columnas_entrada)
+
             # Verificar que el modelo existe
             if not hasattr(self, "model") or self.model is None:
                 self.predicted_value_output.setText("Error: El modelo no está disponible.")
                 return
 
             # Realizar la predicción
-            predicted_value = self.model.predict([input_values])[0]
+            predicted_value = self.model.predict(input_df)[0]
 
             # Mostrar el resultado en el QLineEdit de salida
             self.predicted_value_output.setText(f"{predicted_value:.2f}")
