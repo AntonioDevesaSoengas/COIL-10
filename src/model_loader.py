@@ -1,6 +1,9 @@
+# Third-party libraries.
 import joblib
 from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox
 from PyQt5.QtCore import QTimer
+
+# Local libraries.
 from model_window import ModelWindow
 
 
@@ -13,7 +16,11 @@ class ModelLoader(QWidget):
         """Open a file dialog to select a saved model."""
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "Seleccionar Modelo", "", "Archivos Joblib (*.joblib);;Pickle Files (*.pkl)", options=options
+            self,
+            "Select Model",
+            "",
+            "Joblib Files (*.joblib);;Pickle Files (*.pkl)",
+            options=options
         )
 
         if file_path:
@@ -24,30 +31,33 @@ class ModelLoader(QWidget):
         try:
             model_data = joblib.load(file_path)
 
-            # Mostrar el mensaje de confirmación primero
+            # Show the confirmation message first
             msg_box = QMessageBox(self)
-            msg_box.setWindowTitle("Éxito")
-            msg_box.setText("Modelo cargado exitosamente.")
+            msg_box.setWindowTitle("Success")
+            msg_box.setText("Model loaded successfully.")
             msg_box.setIcon(QMessageBox.Information)
-            msg_box.exec_()  # Mostramos el mensaje primero
+            msg_box.exec_()  # Show the message first
 
-            # Retrasar ligeramente la apertura de la ventana del modelo
+            # Slightly delay the opening of the model window
             QTimer.singleShot(100, lambda: self.open_model_window(model_data))
 
         except Exception as e:
-            QMessageBox.critical(self.viewer, "Error", f"No se pudo cargar el modelo: {str(e)}")
+            QMessageBox.critical(
+                self.viewer,
+                "Error",
+                f"Could not load the model: {str(e)}"
+            )
 
     def open_model_window(self, model_data):
-        """Abre la ventana del modelo."""
-        # Obtener las columnas de entrada del modelo cargado
-        columnas_entrada = model_data.get('input_columns', [])  # Cambia 'input_columns' por la clave correcta si es diferente
-
-        # Crear una nueva instancia de ModelWindow pasando ambos argumentos
+        """Open the model window."""
+        # Get the input columns from the loaded model
+        input_columns = model_data.get('input_columns', [])  
+        # Create a new instance of ModelWindow passing both arguments
+        model_window = ModelWindow(model_data, input_columns)
         if hasattr(self.viewer, 'open_windows'):
-            self.viewer.open_windows.append(ModelWindow(model_data, columnas_entrada))
+            self.viewer.open_windows.append(model_window)
         else:
-            self.viewer.open_windows = [ModelWindow(model_data, columnas_entrada)]
+            self.viewer.open_windows = [model_window]
 
-        # Mostrar la ventana del modelo
+        # Show the model window
         self.viewer.open_windows[-1].show()
-
