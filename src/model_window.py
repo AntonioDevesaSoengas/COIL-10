@@ -72,7 +72,7 @@ class ModelWindow(QMainWindow):
         self.predicted_value_output.setPlaceholderText("El resultado aparecerá aquí")
         self.predicted_value_output.setFixedHeight(30)  # Ajustar tamaño
         self.predicted_value_output.setReadOnly(True)  # Hacer que sea solo lectura
-        self.predicted_value_output.setStyleSheet("padding: 5px; font-size: 12px; color: green; font-weight: bold;")
+        self.predicted_value_output.setStyleSheet("padding: 5px; font-size: 12px; color: gray; font-weight: bold;")
         
         # Add prediction's button
         self.predict_button = self.button.add_QPushButton("📊 Prediction",
@@ -101,6 +101,7 @@ class ModelWindow(QMainWindow):
 
             # Validar que el número de valores coincida con las columnas de entrada
             if len(input_values) != len(self.columnas_entrada):  # self.columnas_entrada tiene 3 columnas, por ejemplo
+                self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")  # Mensajes en rojo
                 self.predicted_value_output.setText(
                     f"Error: Debe ingresar exactamente {len(self.columnas_entrada)} valores separados por comas."
                 )
@@ -110,6 +111,7 @@ class ModelWindow(QMainWindow):
             try:
                 input_values = [float(value.strip()) for value in input_values]
             except ValueError:
+                self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")  # Mensajes en rojo
                 self.predicted_value_output.setText("Error: Por favor, ingrese solo valores numéricos.")
                 return
 
@@ -118,15 +120,19 @@ class ModelWindow(QMainWindow):
 
             # Verificar que el modelo existe
             if not hasattr(self, "model") or self.model is None:
+                self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")  # Mensajes en rojo
                 self.predicted_value_output.setText("Error: El modelo no está disponible.")
                 return
 
             # Realizar la predicción
             predicted_value = self.model.predict(input_df)[0]
 
-            # Mostrar el resultado en el QLineEdit de salida
+            # Mostrar el resultado en el QLineEdit de salida en verde
+            self.predicted_value_output.setStyleSheet("color: green; font-weight: bold;")  # Mensajes en verde
             self.predicted_value_output.setText(f"{predicted_value:.2f}")
 
         except Exception as e:
-            # Mostrar cualquier otro error en el QLineEdit de salida
+            # Mostrar cualquier otro error en el QLineEdit de salida en rojo
+            self.predicted_value_output.setStyleSheet("color: red; font-weight: bold;")
             self.predicted_value_output.setText(f"Error: {str(e)}")
+
