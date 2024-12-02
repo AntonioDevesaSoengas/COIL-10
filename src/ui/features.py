@@ -9,13 +9,13 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
 # Local Libraries.
-from import_files import import_data
-from data_preprocessing import (
+from data_preparation.import_files import import_data
+from data_preparation.data_preprocessing import (
     detect_missing_values, fill_with_constant, fill_with_mean,
     fill_with_median, remove_missing_values, show_missing_values
 )
-from table import Table
-from helpers import LabelHelper, ButtonHelper, LayoutHelper
+from utils.table import Table
+from utils.helpers import LabelHelper, ButtonHelper, LayoutHelper
 from welcome_window import WelcomeWindow
 
 
@@ -561,7 +561,7 @@ class DataViewer(QWidget):
         """
         Opens file dialog to load a model and display details in a new window.
         """
-        from model_loader import ModelLoader
+        from model_management.model_loader import ModelLoader
         from model_window import ModelWindow
 
         # Create an instance of ModelLoader.

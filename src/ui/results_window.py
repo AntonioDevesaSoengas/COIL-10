@@ -16,9 +16,9 @@ from matplotlib.backends.backend_qt5agg import (
 )
 
 # Local libraries.
-from scikit_learn import linear_regression, plot_regression_graph
-from model_saver import ModelSaver
-from helpers import LabelHelper, ButtonHelper
+from model_management.scikit_learn import linear_regression, plot_regression_graph
+from model_management.model_saver import ModelSaver
+from utils.helpers import LabelHelper, ButtonHelper
 
 
 class ResultWindow(QWidget):

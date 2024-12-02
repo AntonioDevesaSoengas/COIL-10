@@ -15,7 +15,7 @@ from matplotlib.backends.backend_qt5agg import (
 )
 
 # Local libraries.
-from helpers import ButtonHelper
+from utils.helpers import ButtonHelper
 
 
 class ModelWindow(QMainWindow):
