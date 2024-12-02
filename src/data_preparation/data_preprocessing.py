@@ -1,7 +1,7 @@
 # Third-party library imports
 from PyQt5.QtWidgets import QMessageBox, QInputDialog
 from sklearn.impute import SimpleImputer
-from helpers import LabelHelper,LayoutHelper
+from utils.helpers import LabelHelper,LayoutHelper
 
 def detect_missing_values(viewer):
     """

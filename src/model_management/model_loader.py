@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox
 from PyQt5.QtCore import QTimer
 
 # Local libraries.
-from model_window import ModelWindow
+from ui.model_window import ModelWindow
 
 
 class ModelLoader(QWidget):

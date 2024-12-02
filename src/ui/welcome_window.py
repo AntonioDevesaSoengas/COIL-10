@@ -4,7 +4,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal
 
 # Local libraries.
-from helpers import LabelHelper
+from utils.helpers import LabelHelper
 
 
 class WelcomeWindow(QWidget):
