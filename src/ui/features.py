@@ -216,8 +216,8 @@ class DataViewer(QWidget):
         # Label to display the loaded file path.
         self.file_label = LabelHelper.create_label(
             parent=self,
-            text="📂 Loaded File Path:",
-            font=("Arial", 10)
+            font=("Arial", 10),
+            alignment=Qt.AlignLeft
         )
         self.file_label.setVisible(False)
 
@@ -904,7 +904,6 @@ class DataViewer(QWidget):
         if self.move == 1:
             self.steps_guide()
             self.layout.layout_visibility(True, True, self.first_step_layout)
-            self.file_label.setVisible(False)
             self.return_button.setEnabled(False)
             if self.data_table is None:
                 self.back_button.setVisible(False)
