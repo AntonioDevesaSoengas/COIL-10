@@ -16,7 +16,7 @@ from data_preparation.data_preprocessing import (
 )
 from utils.table import Table
 from utils.helpers import LabelHelper, ButtonHelper, LayoutHelper
-from welcome_window import WelcomeWindow
+from ui.welcome_window import WelcomeWindow
 
 
 class DataViewer(QWidget):
