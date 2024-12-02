@@ -562,7 +562,7 @@ class DataViewer(QWidget):
         Opens file dialog to load a model and display details in a new window.
         """
         from model_management.model_loader import ModelLoader
-        from model_window import ModelWindow
+        from ui.model_window import ModelWindow
 
         # Create an instance of ModelLoader.
         model_loader = ModelLoader(self)
@@ -844,7 +844,7 @@ class DataViewer(QWidget):
         """
         Display regression results in new window. Notifies success or failure.
         """
-        from results_window import ResultWindow
+        from ui.results_window import ResultWindow
         try:
             self.result_window = ResultWindow(
                 self.df, self.input_columns, self.output_column
