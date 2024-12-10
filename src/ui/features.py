@@ -74,7 +74,6 @@ class DataViewer(QWidget):
         self.setup_first_step()
         self.setup_nan_step()
         self.setup_regression_step()
-        self.setup_model_details_step()
         self.setup_navigation_buttons()
         self.finalize_layout()
 
@@ -415,53 +414,6 @@ class DataViewer(QWidget):
         ]
         self.layout.add_widget(self.regresion_layout, widgets)
 
-    def setup_model_details_step(self):
-        """
-        Sets up the UI components to display a loaded regression model.
-        """
-        self.model_details_layout = QVBoxLayout()
-
-        # Label for displaying the formula.
-        self.formula_label = LabelHelper.create_label(
-            parent=self,
-            text="Model Formula: ",
-            font=("Arial", 10),
-            alignment=Qt.AlignLeft
-        )
-
-        # Label for displaying MSE.
-        self.mse_label = LabelHelper.create_label(
-            parent=self,
-            text="MSE: ",
-            font=("Arial", 10),
-            alignment=Qt.AlignLeft
-        )
-
-        # Label for displaying R².
-        self.r_squared_label = LabelHelper.create_label(
-            parent=self,
-            text="R²: ",
-            font=("Arial", 10),
-            alignment=Qt.AlignLeft
-        )
-
-        # Text box for model description.
-        self.description_text = QTextEdit()
-        self.description_text.setPlaceholderText("Loaded model description...")
-        self.description_text.setReadOnly(True)
-
-        # Add widgets to the layout.
-        widgets = [
-            self.formula_label,
-            self.mse_label,
-            self.r_squared_label,
-            self.description_text
-        ]
-        self.layout.add_widget(self.model_details_layout, widgets)
-
-        # Make the layout initially invisible.
-        self.layout.layout_visibility(True, False, self.model_details_layout)
-
     def setup_navigation_buttons(self):
         """
         Set up the navigation buttons: Back and Next.
@@ -618,63 +570,6 @@ class DataViewer(QWidget):
                 self,
                 "Error",
                 f"Could not load the file: {str(e)}"
-            )
-
-    def display_loaded_model(self, model_data: dict) -> None:
-        """
-        Updates the UI to display details of a loaded model, 
-        including its formula,metrics, and description. 
-        It also hides the irrelevant sections of the interface.
-        """
-        try:
-            # Ensure the regression step layout is displayed
-            self.layout.layout_visibility(True, False, self.main_layout)
-            self.layout.layout_visibility(
-                True, True, self.model_details_layout)
-
-            # Update labels and metrics
-            self.formula_label.setText(f"Formula: {model_data['formula']}")
-            self.mse_label.setText(f"MSE: {model_data.get('mse', 'N/A')}")
-            self.r_squared_label.setText(
-                f"R²: {model_data.get('r_squared', 'N/A')}"
-            )
-            self.description_text.setText(
-                model_data.get('description', 'No description available.')
-            )
-
-            # Hide irrelevant sections
-            self.load_button.setVisible(False)
-            self.load_model_button.setVisible(False)
-            self.back_button.setVisible(False)
-            self.preprocessing_options.setVisible(False)
-            self.apply_button.setVisible(False)
-            self.feature_selector.setVisible(False)
-            self.target_selector.setVisible(False)
-            self.confirm_button.setVisible(False)
-            self.create_model_button.setVisible(False)
-
-            # Adjust steps guide
-            self.steps_guide()
-            self.label.edit_label(
-                self.third_step,
-                text="Model loaded successfully.",
-                background_color="lightgreen",
-                bold=True,
-                padding="5px",
-            )
-            QMessageBox.information(
-                self,
-                "Success",
-                "The model has been loaded and its details are now displayed."
-            )
-        except Exception as e:
-            QMessageBox.critical(
-                self,
-                "Error",
-                (
-                    "An error occurred while displaying the model details: "
-                    f"{str(e)}"
-                )
             )
 
     def display_data_in_table(self, data):
