@@ -43,10 +43,10 @@ def test_model_prediction():
     assert predictions[2] == pytest.approx(6, rel=1e-2)
 
 
-# Tests for saving and loading the model
-def test_model_saving_and_loading(tmp_path):
+# Test for saving the model
+def test_model_saving(tmp_path):
     """
-    Tests the saving and loading functionality of the linear regression model using pickle.
+    Tests the saving functionality of the linear regression model using pickle.
 
     Args:
         tmp_path (Path): A temporary directory provided by pytest for file operations.
@@ -60,6 +60,27 @@ def test_model_saving_and_loading(tmp_path):
     model.fit(X, y)
 
     # Save model
+    file_path = tmp_path / "model.pkl"
+    with open(file_path, 'wb') as f:
+        pickle.dump(model, f)
+
+    # Verify that the file was created
+    assert file_path.exists()
+
+    # Test for loading the model
+def test_model_loading(tmp_path):
+    """
+    Tests the loading functionality of the linear regression model using pickle.
+
+    Args:
+        tmp_path (Path): A temporary directory provided by pytest for file operations.
+    """
+    # Create and save a model to a file
+    X = [[1], [2], [3]]
+    y = [2, 4, 6]
+    model = LinearRegression()
+    model.fit(X, y)
+
     file_path = tmp_path / "model.pkl"
     with open(file_path, 'wb') as f:
         pickle.dump(model, f)
