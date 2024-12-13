@@ -22,7 +22,6 @@ def _read_sqlite(db_path, query="SELECT * FROM test_table"):
     with sqlite3.connect(db_path) as connection:
         return pd.read_sql_query(query, connection)
 
-
 def import_data(file_path):
     """
     Import data from a file based on its extension and return a DataFrame.
