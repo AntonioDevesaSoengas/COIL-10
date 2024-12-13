@@ -41,9 +41,8 @@ class ModelLoader(QWidget):
                 msg_box.exec_()
                 print("Displayed success message.")
 
-                QTimer.singleShot(100, lambda: self.open_model_window(model_data))
 
-            return model_data['model']
+            return model_data
 
         except Exception as e:
             print(f"Error loading model: {e}")
@@ -53,9 +52,6 @@ class ModelLoader(QWidget):
                     "Error",
                     f"Could not load the model: {str(e)}"
                 )
-
-
-
 
     def open_model_window(self, model_data):
         """Open the model window."""

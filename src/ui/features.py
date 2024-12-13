@@ -523,7 +523,7 @@ class DataViewer(QWidget):
         if model_data:
             try:
                 # Open a new window to display the model details.
-                self.model_window = ModelWindow(model_data)
+                self.model_window = ModelWindow(model_data,self.input_columns)
                 self.model_window.show()
             except Exception as e:
                 QMessageBox.critical(
