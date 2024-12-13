@@ -8,7 +8,6 @@ import pytest
 # Third-Party Libraries
 from sklearn.linear_model import LinearRegression
 import pandas as pd
-from pathlib import Path
 import numpy as np
 import sqlite3
 
@@ -88,6 +87,9 @@ def test_model_saving(tmp_path):
     assert file_path.exists()
 
 
+
+
+
 # ------------------- Test for Model Loading -------------------
 def test_model_loading(tmp_path):
     """
@@ -111,6 +113,8 @@ def test_model_loading(tmp_path):
 
     # Verify that the loaded model works correctly
     assert loaded_model.predict([[4]])[0] == pytest.approx(8, rel=1e-2)
+
+
 
 
 # ------------------- Test for Importing CSV File -------------------
