@@ -18,10 +18,9 @@ def _read_excel_file(file_path):
 
 # Connects to a SQLite database and executes a query to return
 # the result as a DataFrame.
-def _read_sqlite(db_path, query="SELECT * FROM california_housing_dataset"):
+def _read_sqlite(db_path, query="SELECT * FROM test_table"):
     with sqlite3.connect(db_path) as connection:
         return pd.read_sql_query(query, connection)
-
 
 def import_data(file_path):
     """
