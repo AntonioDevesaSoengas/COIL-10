@@ -26,27 +26,36 @@ class ModelLoader(QWidget):
         if file_path:
             return self.load_model(file_path)  # Return loaded model data
 
-    def load_model(self, file_path):
+    def load_model(self, file_path, test_mode=False):
         """Load the model from the specified file path."""
         try:
+            print(f"Attempting to load model from: {file_path}")
             model_data = joblib.load(file_path)
+            print("Model loaded successfully.")
 
-            # Show the confirmation message first
-            msg_box = QMessageBox(self)
-            msg_box.setWindowTitle("Success")
-            msg_box.setText("Model loaded successfully.")
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.exec_()  # Show the message first
+            if not test_mode:
+                msg_box = QMessageBox(self)
+                msg_box.setWindowTitle("Success")
+                msg_box.setText("Model loaded successfully.")
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.exec_()
+                print("Displayed success message.")
 
-            # Slightly delay the opening of the model window
-            QTimer.singleShot(100, lambda: self.open_model_window(model_data))
+                QTimer.singleShot(100, lambda: self.open_model_window(model_data))
+
+            return model_data['model']
 
         except Exception as e:
-            QMessageBox.critical(
-                self.viewer,
-                "Error",
-                f"Could not load the model: {str(e)}"
-            )
+            print(f"Error loading model: {e}")
+            if not test_mode:
+                QMessageBox.critical(
+                    self.viewer,
+                    "Error",
+                    f"Could not load the model: {str(e)}"
+                )
+
+
+
 
     def open_model_window(self, model_data):
         """Open the model window."""
