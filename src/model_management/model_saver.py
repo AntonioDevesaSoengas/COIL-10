@@ -1,4 +1,7 @@
-# Third-party libraries.
+# Standard Libraries
+import warnings
+
+# Third-party libraries
 import joblib
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
@@ -51,16 +54,20 @@ class ModelSaver:
         Returns:
             None
         """
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getSaveFileName(
-            None,
-            "Save Model",
-            "",
-            "Joblib Files (*.joblib)",
-            options=options
-        )
-        if file_path:
-            self.save_model(file_path)
+        # Suppress warnings temporarily during file dialog interaction
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            options = QFileDialog.Options()
+            file_path, _ = QFileDialog.getSaveFileName(
+                None,
+                "Save Model",
+                "",
+                "Joblib Files (*.joblib)",
+                options=options
+            )
+            if file_path:
+                self.save_model(file_path)
 
     def save_model(self, file_path):
         """
