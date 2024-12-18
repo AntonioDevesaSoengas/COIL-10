@@ -1,8 +1,7 @@
 # Third-party libraries
-from PyQt5.QtWidgets import QLabel, QPushButton, QRadioButton, QComboBox, QFrame, QWidget, QSpacerItem, QLayout, QMessageBox
+from PyQt5.QtWidgets import QLabel, QPushButton, QRadioButton, QComboBox, QFrame, QWidget, QSpacerItem, QLayout, QMessageBox, QHBoxLayout
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
-
+from PyQt5.QtCore import Qt, pyqtSignal, QObject
 
 class LabelHelper:
     @staticmethod
@@ -12,7 +11,7 @@ class LabelHelper:
                      visible=False):
         """
         Creates a QLabel with the specified text, font, alignment, and styles.
-
+        
         :param parent: The parent widget.
         :param text: Text to display in the label.
         :param font: Tuple (family, size).
@@ -65,7 +64,7 @@ class LabelHelper:
                    word_wrap=None,padding="0px",visible=None,color="black"):
         """
         Edits the properties of an existing QLabel.
-
+        
         :param label: QLabel to modify.
         :param text: New text for the QLabel.
         :param font: Tuple (family, size).
@@ -170,6 +169,34 @@ class ButtonHelper:
             button.setStyleSheet(style)
 
         return button
+
+    def create_navigation_buttons(self, on_next=None, on_back=None):
+        """
+        Creates a layout with Next and Back buttons.
+
+        :param on_next: Function to connect to the Next button.
+        :param on_back: Function to connect to the Back button.
+        :return: QHBoxLayout with configured buttons.
+        """
+        layout = QHBoxLayout()
+
+        # Back button
+        back_button = QPushButton("Back")
+        back_button.setFixedSize(100, 40)
+        back_button.setStyleSheet("background-color: #d3d3d3; color: black;")
+        if on_back:
+            back_button.clicked.connect(on_back)
+        layout.addWidget(back_button)
+
+        # Next button
+        next_button = QPushButton("Next")
+        next_button.setFixedSize(100, 40)
+        next_button.setStyleSheet("background-color: #4CAF50; color: white;")
+        if on_next:
+            next_button.clicked.connect(on_next)
+        layout.addWidget(next_button)
+
+        return layout
 
     def add_QRadioButton(self, text: str, font_type: str, font_size: str, width: int, height: int, visibility: bool):
         """
@@ -290,3 +317,4 @@ class LayoutHelper:
 
             elif item.layout() and sublayouts:  # If the item is another layout
                 self.layout_visibility(True, visibility, item.layout())
+
