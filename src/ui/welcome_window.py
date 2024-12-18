@@ -6,7 +6,6 @@ from PyQt5.QtCore import Qt, pyqtSignal
 # Local libraries.
 from utils.helpers import LabelHelper
 
-
 class WelcomeWindow(QWidget):
     """
     A QWidget-based class representing the welcome window of the application.
@@ -14,9 +13,6 @@ class WelcomeWindow(QWidget):
     Attributes:
         start_clicked (pyqtSignal): A signal emitted when the start button is clicked.
     """
-
-    # Signal to indicate that the user has clicked "Start".
-    start_clicked = pyqtSignal()
 
     def __init__(self, parent=None):
         """
@@ -57,10 +53,9 @@ class WelcomeWindow(QWidget):
             visible=True
         )
 
-        # Additional label to indicate that the user should click the button.
         self.start_label = LabelHelper.create_label(
             parent=self,
-            text="Click here to start\n👇",
+            text="Choose an option\n",
             font=("Arial", 12),
             visible=True
         )
@@ -72,30 +67,28 @@ class WelcomeWindow(QWidget):
         layout.addWidget(self.hello, alignment=Qt.AlignCenter)
         layout.addSpacing(10)  # Space between "hello" and "welcome_message"
         layout.addWidget(self.welcome_message, alignment=Qt.AlignCenter)
-        # Space between "welcome_message" and "start_label".
-        layout.addSpacing(20)
+        layout.addSpacing(20)  # Space between "welcome_message" and "start_label"
         layout.addWidget(self.start_label, alignment=Qt.AlignCenter)
 
-        # Create and style the start button.
-        self.start_button = QPushButton("Start My Linear Regression")
-        self.start_button.setStyleSheet("color: green; padding: 10px;")
-        self.start_button.setFont(QFont("Arial", 12))
-        self.start_button.clicked.connect(self.on_start_clicked)
+        # Create and style the create button.
+        self.create_button = QPushButton("Create New Model")
+        self.create_button.setStyleSheet("color: green; padding: 10px;")
+        self.create_button.setFont(QFont("Arial", 12))
+        
+        # Create and style the create button.
+        self.load_button = QPushButton("Load Model")
+        self.load_button.setStyleSheet("color: green; padding: 10px;")
+        self.load_button.setFont(QFont("Arial", 12))
 
         # Add the button to the main layout.
-        layout.addWidget(self.start_button, alignment=Qt.AlignCenter)
+        layout.addWidget(self.create_button, alignment=Qt.AlignCenter)
+        layout.addWidget(self.load_button, alignment=Qt.AlignCenter)
 
         layout.addStretch()  # Bottom spacer
 
         # Configure the window.
         self.setLayout(layout)
         self.setWindowTitle("Welcome")
-
-    def on_start_clicked(self):
-        """
-        Emit the start_clicked signal when the start button is pressed.
-        """
-        self.start_clicked.emit()
 
     def resizeEvent(self, event):
         """
@@ -110,13 +103,11 @@ class WelcomeWindow(QWidget):
             self.hello.setFont(QFont("Arial", 25))
             self.welcome_message.setFont(QFont("Arial", 18))
             self.start_label.setFont(QFont("Arial", 12))
-            self.start_button.setFont(QFont("Arial", 12))
-            self.setMinimumSize(800,600)
+            self.setMinimumSize(800, 600)
         else:
             self.hello.setFont(QFont("Arial", 45))
             self.welcome_message.setFont(QFont("Arial", 35))
             self.start_label.setFont(QFont("Arial", 16))
-            self.start_button.setFont(QFont("Arial", 16))
-            self.setMinimumSize(800,600)
+            self.setMinimumSize(800, 600)
 
         super().resizeEvent(event)

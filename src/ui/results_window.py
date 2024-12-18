@@ -17,7 +17,7 @@ from matplotlib.backends.backend_qt5agg import (
 
 # Local libraries.
 from model_management.scikit_learn import linear_regression, plot_regression_graph
-from model_management.model_saver import ModelSaver
+from model_management.model_saver import ModelLoader
 from utils.helpers import LabelHelper, ButtonHelper
 
 
@@ -212,7 +212,7 @@ class ResultWindow(QWidget):
         description = self.text_box.toPlainText()
 
         # Create and invoke ModelSaver.
-        model_saver = ModelSaver(
+        model_saver = ModelLoader(
             model=self.model,
             formula=self.formula,
             r_squared=self.r_squared,

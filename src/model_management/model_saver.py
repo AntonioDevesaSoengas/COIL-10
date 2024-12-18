@@ -1,121 +1,63 @@
 # Third-party libraries.
 import joblib
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QWidget, QFileDialog, QMessageBox
+from PyQt5.QtCore import QTimer
+
+# Local libraries.
+from ui.model_window import ModelWindow
 
 
-class ModelSaver:
-    """
-    A class to handle saving linear regression models and their metadata.
+class ModelLoader(QWidget):
+    def __init__(self, viewer):
+        super().__init__()
+        self.viewer = viewer
 
-    Attributes:
-        model: The linear regression model to be saved.
-        formula (str): The formula used in the model.
-        r_squared (float): The R-squared value of the model.
-        mse (float): The Mean Squared Error of the model.
-        input_columns (list): List of input feature column names.
-        output_column (str): The name of the output column.
-        description (str): Description of the model.
-        graph: (Optional) Graphical representation associated with the model.
-    """
-
-    def __init__(
-        self,
-        model,
-        formula,
-        r_squared,
-        mse,
-        input_columns,
-        output_column,
-        description,
-        graph=None
-    ):
-        """
-        Initialize the ModelSaver with model details.
-        """
-        self.model = model
-        self.formula = formula
-        self.r_squared = r_squared
-        self.mse = mse
-        self.input_columns = input_columns
-        self.output_column = output_column
-        self.description = description
-        self.graph = graph
-
-    def save_model_dialog(self):
-        """
-        Open a file dialog to save the model.
-
-        This method allows the user to choose a file path and name
-        to save the serialized model using Joblib.
-
-        Returns:
-            None
-        """
+    def load_model_dialog(self):
+        """Open a file dialog to select a saved model."""
         options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getSaveFileName(
-            None,
-            "Save Model",
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Model",
             "",
-            "Joblib Files (*.joblib)",
+            "Joblib Files (*.joblib);;Pickle Files (*.pkl)",
             options=options
         )
+
         if file_path:
-            self.save_model(file_path)
+            return self.load_model(file_path)  # Return loaded model data
 
-    def save_model(self, file_path):
-        """
-        Save the model to the specified file path.
-
-        Serializes the model along with its metadata and saves it using Joblib.
-        If the description is empty or consists solely of whitespace, a default
-        description is used.
-
-        Args:
-            file_path (str): The file path where the model will be saved.
-
-        Raises:
-            Exception: If there is an error during the saving process.
-
-        Returns:
-            None
-        """
+    def load_model(self, file_path):
+        """Load the model from the specified file path."""
         try:
-            # Use a default description if the provided description is empty.
-            description = (
-                self.description.strip()
-                if self.description.strip()
-                else "No description provided."
-            )
+            model_data = joblib.load(file_path)
 
-            # Data of the model to save.
-            model_data = {
-                'model': self.model,
-                'formula': self.formula,
-                'r_squared': self.r_squared,
-                'mse': self.mse,
-                'input_columns': self.input_columns,
-                'output_column': self.output_column,
-                'description': description,
-                'graph': self.graph,
-            }
+            # Show the confirmation message first
+            msg_box = QMessageBox(self)
+            msg_box.setWindowTitle("Success")
+            msg_box.setText("Model loaded successfully.")
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.exec_()  # Show the message first
 
-            # Save the model using Joblib.
-            joblib.dump(model_data, file_path)
+            # Slightly delay the opening of the model window
+            QTimer.singleShot(100, lambda: self.open_model_window(model_data))
 
-            # Prepare success message.
-            success_title = "Success"
-            success_message = "Model saved successfully."
-            QMessageBox.information(
-                None,
-                success_title,
-                success_message
-            )
         except Exception as e:
-            # Prepare error message.
-            error_title = "Error"
-            error_message = f"Could not save the model: {str(e)}"
             QMessageBox.critical(
-                None,
-                error_title,
-                error_message
+                self.viewer,
+                "Error",
+                f"Could not load the model: {str(e)}"
             )
+
+    def open_model_window(self, model_data):
+        """Open the model window."""
+        # Get the input columns from the loaded model
+        input_columns = model_data.get('input_columns', [])  
+        # Create a new instance of ModelWindow passing both arguments
+        model_window = ModelWindow(model_data, input_columns)
+        if hasattr(self.viewer, 'open_windows'):
+            self.viewer.open_windows.append(model_window)
+        else:
+            self.viewer.open_windows = [model_window]
+
+        # Show the model window
+        self.viewer.open_windows[-1].show()

@@ -149,9 +149,7 @@ class ModelWindow(QMainWindow):
                 self.predicted_value_output.setStyleSheet(
                     "color: red; font-weight: bold;"
                 )  
-                self.predicted_value_output.setText(
-                    f"Error: You must enter exactly {len(self.input_columns)} values separated by commas."
-                )
+                self.predicted_value_output.setText(f"Error: You must enter exactly {len(self.input_columns)} values separated by commas.")
                 return
 
             # Validate that all values are numeric.
