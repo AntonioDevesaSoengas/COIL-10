@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QTableView 
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QTableView, QHBoxLayout
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -9,14 +9,16 @@ from data_preparation.data_preprocessing import (
     fill_with_median,
     remove_missing_values
 )
-
+from utils.helpers import ButtonHelper
 
 class DataPreprocessingWindow(QWidget):
     """
     Class to handle data preprocessing functionalities.
     """
-    
+
     finished = pyqtSignal(object)
+    navigate_next = pyqtSignal(object)
+    navigate_back = pyqtSignal()
     
     def __init__(self, parent=None, dataframe=None):
         super().__init__(parent)
@@ -31,6 +33,8 @@ class DataPreprocessingWindow(QWidget):
         Set up the user interface components for data preprocessing.
         """
         self.layout = QVBoxLayout()
+        
+        button_helper = ButtonHelper()
 
         self.nan_label = QLabel("Preprocessing NaN Values")
         self.nan_label.setFont(QFont("Arial", 12))
@@ -56,6 +60,13 @@ class DataPreprocessingWindow(QWidget):
         # Add QTableView to display data
         self.table_view = QTableView()
         self.layout.addWidget(self.table_view)
+        
+        # Navigation buttons
+        navigation_buttons = button_helper.create_navigation_buttons(
+            on_next=self.go_next,
+            on_back=self.go_back
+        )
+        self.layout.addLayout(navigation_buttons)
 
         self.setLayout(self.layout)
         self.setWindowTitle("Data Preprocessing")
@@ -93,9 +104,9 @@ class DataPreprocessingWindow(QWidget):
             QMessageBox.information(
                 self, "Success", "Preprocessing applied successfully."
             )
-            
-            self.finished.emit(self.df)
-            
+
+            self.finished.emit(self.df)  # Emitir el DataFrame actualizado
+            self.display_data_in_table(self.df)  # Actualizar la tabla en la ventana
         except Exception as e:
             QMessageBox.critical(
                 self, "Error", f"An error occurred during preprocessing: {e}"
@@ -127,3 +138,14 @@ class DataPreprocessingWindow(QWidget):
         # Assuming self.table_view is defined in your class for displaying the data
         self.table_view.setModel(model)
         self.table_view.setVisible(True)
+
+    def go_next(self):
+        if self.df is not None:
+            self.navigate_next.emit(self.df)
+        else:
+            QMessageBox.warning(self, "Warning", "Please apply preprocessing before proceeding.")
+
+    def go_back(self):
+        self.navigate_back.emit()
+
+    

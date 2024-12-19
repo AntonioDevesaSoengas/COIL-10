@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QListWidget, QAbstractItemView, QRadioButton, QHBoxLayout, QPushButton, QMessageBox
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
+from utils.helpers import ButtonHelper
 
 class ColumnSelectionWindow(QWidget):
     """
@@ -8,6 +9,7 @@ class ColumnSelectionWindow(QWidget):
     """
     
     selection_done = pyqtSignal(list, list)
+    navigate_back = pyqtSignal(object)
     
     def __init__(self, main_window, parent=None):
         super().__init__(parent)
@@ -24,6 +26,8 @@ class ColumnSelectionWindow(QWidget):
         Set up the user interface components for column selection.
         """
         self.layout = QVBoxLayout()
+        
+        button_helper = ButtonHelper()
 
         # Title label
         self.title_label = QLabel("Select Columns for Regression")
@@ -79,6 +83,14 @@ class ColumnSelectionWindow(QWidget):
         """)
         self.generate_model_button.clicked.connect(self.generate_model)
         self.layout.addWidget(self.generate_model_button)
+
+        # Layout para botones de navegación
+        nav_layout = QHBoxLayout()
+        back_button = QPushButton("Back")
+        back_button.clicked.connect(self.go_back)
+        nav_layout.addWidget(back_button)
+        nav_layout.addStretch()
+        self.layout.addLayout(nav_layout)
 
         # Set layout
         self.setLayout(self.layout)
@@ -166,3 +178,5 @@ class ColumnSelectionWindow(QWidget):
         # Llama a create_result_window en MainWindow
         self.main_window.create_result_window(self.df, input_columns, output_column)
 
+    def go_back(self):
+        self.navigate_back.emit(self.df)

@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         self.welcome_window = WelcomeWindow()
         self.stack.addWidget(self.welcome_window)
         self.welcome_window.create_button.clicked.connect(lambda: self.stack.setCurrentIndex(1))
-
+        
         # Loading Dataset Window
         self.loading_window = LoadingDatasetWindow()
         self.loading_window.navigate_next.connect(self.go_to_preprocessing)
@@ -47,7 +47,34 @@ class MainWindow(QMainWindow):
 
         # Data Preprocessing Window
         self.preprocessing_window = DataPreprocessingWindow()
+        self.preprocessing_window.navigate_next.connect(self.go_to_columns_selection)  # Avanzar a la siguiente ventana
+        self.preprocessing_window.navigate_back.connect(self.go_to_loading)  # Retroceder a la ventana de carga
         self.stack.addWidget(self.preprocessing_window)
+        
+        # Column Selection Window
+        self.column_selection_window = ColumnSelectionWindow(self)
+        self.column_selection_window.navigate_back.connect(self.go_to_preprocessing_from_columns)
+        self.stack.addWidget(self.column_selection_window)
+
+    def go_to_columns_selection(self, df):
+        """
+        Navigate to the column selection window.
+        """
+        self.df = df  # Guardamos el DataFrame
+        self.column_selection_window.set_dataframe(df)  # Pasar el DataFrame a la ventana de selección
+        self.stack.setCurrentIndex(3)  # Mover a la ventana de selección de columnas
+
+    def go_to_preprocessing_from_columns(self):
+        """
+        Navigate back to the preprocessing window from column selection.
+        """
+        self.stack.setCurrentIndex(2)  # Regresa a la ventana de preprocesado
+
+    def go_to_loading(self):
+        """
+        Navigate back to the loading dataset window.
+        """
+        self.stack.setCurrentIndex(1)
 
     def go_to_preprocessing(self, df):
         """
@@ -55,8 +82,9 @@ class MainWindow(QMainWindow):
         """
         self.df = df
         self.preprocessing_window.set_dataframe(df)
+        self.preprocessing_window.display_data_in_table(df)
         self.stack.setCurrentIndex(2)  # Move to preprocessing window
-
+        
     def go_to_welcome(self):
         """
         Navigate back to the welcome window.
