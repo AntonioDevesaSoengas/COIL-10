@@ -128,7 +128,7 @@ After creating a regression model, users can:
 
 ## Contributing
 
-We welcome contributions! Please refer to the [Contributing Guidelines]([CONTRIBUTING.md](https://github.com/AntonioDevesaSoengas/COIL-10/blob/4b2bd1ea9aaceecdd758c9a13b8d1226cc5f0f5f/docs/Contributing.md )) for details on how to get involved.
+We welcome contributions! Please refer to the [Contributing Guidelines](https://github.com/AntonioDevesaSoengas/COIL-10/blob/4b2bd1ea9aaceecdd758c9a13b8d1226cc5f0f5f/docs/Contributing.md) for details on how to get involved.
 
 ---
 
