@@ -1,102 +1,141 @@
-# Contributing
+# Contributing Guidelines
 
-## Contributing Guidelines
+## Introduction
 
-### Introduction
+This document outlines the guidelines for contributing to **RegressionMaker**, a Python application that allows users to create and visualize both simple and multiple linear regression models using data from CSV, Excel, and SQLite files. The project also supports saving and loading models, as well as making predictions. Development follows Agile methodology with the Scrum framework.
 
-This document outlines the guidelines for contributing to the development of a Python application that allows users to create and visualize simple and multiple linear regression models using CSV, Excel, and SQLite files. The project will also support saving and loading models, as well as making predictions. All work follows Agile methodology and the Scrum framework.
+---
 
-### Getting Started
+## Getting Started
 
-To contribute to this project, ensure you have the following tools installed:
+To contribute, ensure you have the following tools installed:
 
 - **Python 3.x**
 - **Git**
-- **Libraries:** Pandas, Scikit-learn, Matplotlib (for handling models and visualization)
-- **SQLite3** (for database handling)
-- **Tkinter** (for the graphical user interface)
-- **Taiga account** (for Scrum management)
+- Libraries: `Pandas`, `Scikit-learn`, `Matplotlib`, `PyQt5`
+- **SQLite3**: For managing SQLite files.
+- **GitHub Account**: To collaborate on the repository.
+- **Taiga Account**: For Scrum-based task management.
 
-### Contribution Workflow
+### Initial Setup:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/AntonioDevesaSoengas/COIL-10.git
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-#### 1. Branching Strategy
+---
 
-We follow the GitFlow branching model:
+## Contribution Workflow
 
-- **main:** Contains stable, production-ready code.
-- **develop:** Contains the latest development work.
-- **feature/[feature-name]:** For each new feature or task, create a feature branch from the develop branch.
+### 1. Branching Strategy
 
-All work must be committed and pushed to feature branches and only integrated into `develop` through pull requests (PRs) after review.
+We use a simplified GitFlow branching model:
+- **main**: Stable, production-ready code.
+- **develop**: The branch where all new development is merged.
+- **feature/[feature-name]**: Create feature branches from `develop` for new tasks or features.
 
-#### 2. Commit Messages
+**Rules:**
+- Always work on a feature branch created from `develop`.
+- Merge into `develop` only through pull requests (PRs) after a review.
 
-Use clear and concise commit messages, following this structure:
+---
 
-- **feat:** For new features (e.g., `feat: Add CSV import functionality`).
-- **fix:** For bug fixes (e.g., `fix: Correct CSV file parser issue`).
-- **docs:** For documentation updates (e.g., `docs: Update contributing.md`).
-- **test:** For adding or modifying tests (e.g., `test: Add unit tests for regression model`).
+### 2. Commit Messages
 
-#### 3. Pull Requests (PRs)
+Follow a clear and consistent commit message format:
+```
+<type>(<module>): <short description>
+Ref: #<issue-number>
+```
 
-Once your feature is ready, push your branch to the remote repository and create a pull request from your feature branch to the `develop` branch. Ensure the following before submitting:
+#### Common Types:
+- **feat**: For new features.
+- **fix**: For bug fixes.
+- **docs**: For documentation updates.
+- **style**: For code formatting or style changes.
+- **refactor**: For code improvements without adding features.
 
-- The feature is fully implemented and tested.
-- Documentation has been updated where necessary.
-- Include a brief description of the changes in the PR.
+**Examples:**
+```
+feat(ui): add dropdown for column selection
+Ref: #15
 
-At least one team member must review and approve the PR before merging it into `develop`.
+fix(data_preparation): handle missing values correctly
+Ref: #22
 
-#### 4. Scrum Practices
+refactor(model_management): optimize model saving logic
+Ref: #30
+```
 
-We follow Scrum practices, including:
+---
 
-- **Daily stand-ups:** We hold daily meetings to discuss progress and blockers.
-- **Sprint planning:** Tasks are assigned at the start of each sprint.
-- **Sprint reviews and retrospectives:** At the end of each sprint, we review completed work and discuss improvements.
+### 3. Pull Requests (PRs)
 
-#### 5. Issue Tracking
+When your feature is ready:
+1. Push your branch to the remote repository.
+2. Open a pull request to merge your branch into `develop`.
+3. Ensure the following:
+   - The feature is fully implemented and tested.
+   - Documentation is updated if necessary.
+   - The PR includes a clear description of changes.
+   - At least one team member reviews and approves your PR.
 
-We use Taiga to manage the Scrum board and track issues. All tasks are logged and updated in the system. Ensure you regularly update your progress on the board.
+---
 
-#### 6. Code Style Guidelines
+## Scrum Practices
 
-Follow the PEP8 guidelines for Python code:
+We follow **Scrum practices** to ensure efficient collaboration:
+- **Sprint planning**: Define goals and assign tasks for each sprint.
+- **Continuous updates**: Use Taiga to notify the team about progress and blockers.
+- **Sprint review**: At the end of each sprint, review completed work and its alignment with project goals.
+- **Sprint retrospective**: Reflect on lessons learned and plan improvements.
 
-- **Indentation:** Use 4 spaces for indentation.
-- **Line length:** Limit all lines to a maximum of 79 characters.
-- **Use descriptive names for variables and functions.**
-- **Document all functions and methods with docstrings.**
+---
 
-#### 7. Testing
+## Code Style Guidelines
 
-All features must be accompanied by unit tests. Ensure your tests cover both normal and edge cases. Use `unittest` or `pytest` frameworks. Ensure all tests pass before creating a pull request.
+We adhere to **PEP 8** for Python code:
+- **Indentation**: Use 4 spaces per level.
+- **Line length**: Limit to 79 characters.
+- **Naming conventions**: Use snake_case for variables/functions and CamelCase for class names.
+- Include **docstrings** in all key functions and classes to describe their purpose and usage.
 
-#### 8. How to Report Bugs
+---
 
-If you encounter a bug, please report it by creating an issue in the GitHub repository. Include:
+## Testing
 
-- A clear description of the problem.
-- Steps to reproduce the issue.
-- Expected vs. actual behavior.
-- Any error messages or logs if available.
+- All features must include relevant tests to ensure proper functionality.
+- Use `pytest` or `unittest` for testing.
+- Tests should cover both normal and edge cases.
+- Ensure all tests pass before opening a PR.
 
-#### 9. Coding Etiquette
+---
 
-- Be respectful when giving feedback in code reviews.
-- Help fellow team members when they encounter blockers.
-- Keep the repository clean—delete branches after merging and avoid cluttering the project with unnecessary files.
+## Reporting Issues
 
-### Role of Seneca Member
+If you encounter a bug, report it by opening an **issue** in the repository. Include:
+1. A clear description of the issue.
+2. Steps to reproduce the problem.
+3. Expected vs. actual behavior.
+4. Any error messages or logs (if applicable).
 
-The team member from the Seneca program has the additional responsibility of documenting the progress and features of the project in the `README.md` file. This documentation will include:
+---
 
-- **Installation/Deployment Guide:** Instructions on how to install and run the application.
-- **User Manual:** With screenshots explaining how to use the application to perform its functionalities.
+## Role of the Seneca Member
 
-The Seneca member must also ensure that the documentation in the `README.md` is always updated and clear for other users and contributors.
+The Seneca member has additional responsibilities:
+1. **Documentation**:
+   - Maintain the `README.md` with installation instructions, user guides, and features.
+2. **Collaboration**:
+   - Ensure the team’s progress is properly documented in Taiga.
+   - Act as a liaison for external reviewers.
 
-### Conclusion
+---
 
-By following these guidelines, we will maintain a productive and organized collaborative environment, ensuring high-quality code delivery and the project's progress as planned. Thank you for contributing!
+## Conclusion
+
+By following these guidelines, we ensure an organized and efficient workflow, enabling the delivery of high-quality code and collaborative success. Thank you for contributing! 
