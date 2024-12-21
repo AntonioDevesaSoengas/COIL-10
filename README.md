@@ -128,16 +128,16 @@ After creating a regression model, users can:
 
 ## Contributing
 
-We welcome contributions! Please refer to the [Contributing Guidelines](CONTRIBUTING.md) for details on how to get involved.
+We welcome contributions! Please refer to the [Contributing Guidelines]([CONTRIBUTING.md](https://github.com/AntonioDevesaSoengas/COIL-10/blob/4b2bd1ea9aaceecdd758c9a13b8d1226cc5f0f5f/docs/Contributing.md )) for details on how to get involved.
 
 ---
 
 ## Contributors
 
-- **Antonio Devesa Soengas**
+- **Miguel Baños**
+- **Antonio Devesa**
 - **Iván Docampo**
 - **Alejandro Nogueiras**
-- **Miguel Baños**
 - **Iván Rodríguez**
 - **Harshit Kohli**
 
@@ -146,3 +146,7 @@ We welcome contributions! Please refer to the [Contributing Guidelines](CONTRIBU
 ## Support
 
 For assistance or feedback, please reach out via the GitHub repository.
+
+---
+
+**Thank you for using RegressionMaker!** We hope this tool helps you achieve your goals with ease. Keep innovating and analyzing—your next breakthrough might be just a regression away!
