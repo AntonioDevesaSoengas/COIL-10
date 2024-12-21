@@ -44,23 +44,66 @@ To begin using RegressionMaker, ensure your system meets the requirements and fo
 
 ## Installation
 
-1. **Clone the repository:**
+### Option 1: Using the Release Zip File
+This method is recommended if you want a simple setup without using GitHub directly.
+
+1. **Download the zip file** from the [latest release](https://github.com/AntonioDevesaSoengas/COIL-10/releases/latest).
+2. **Extract the zip file** to a location of your choice.
+3. **Navigate to the project directory** (the extracted folder) using your terminal or command prompt:
    ```bash
-   git clone https://github.com/AntonioDevesaSoengas/COIL-10.git
+   cd <path_to_extracted_folder>
    ```
-2. **Navigate to the project directory:**
-   ```bash
-   cd COIL-10
-   ```
-3. **Install dependencies:**
+4. **Install the dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
-4. **Run the application:**
+5. **Run the application**:
    ```bash
    python main.py
    ```
 
+### Option 2: Opening the Project in an Editor
+This method is useful if you want to view or modify the source code.
+
+1. **Download the zip file** from the [latest release](https://github.com/AntonioDevesaSoengas/COIL-10/releases/latest) and extract it.
+2. Open your preferred code editor (e.g., Visual Studio Code).
+3. **Open the extracted folder** as a project in the editor.
+4. Open a terminal within the editor and **navigate to the project directory** if not already there:
+   ```bash
+   cd <path_to_extracted_folder>
+   ```
+5. **Install the dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+6. **Run the application**:
+   ```bash
+   python main.py
+   ```
+
+### Option 3: Cloning the Repository
+This method is for users who prefer working directly with GitHub.
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/AntonioDevesaSoengas/COIL-10.git
+   ```
+
+2. **Install the dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Run the application**:
+   ```bash
+   python main.py
+   ```
+
+---
+
+### Notes
+- Ensure that you have Python 3.x installed on your system.
+- If you encounter any issues during installation, double-check that you are in the correct directory and have the required dependencies installed.
+  
 ---
 
 ## Navigating the Interface
